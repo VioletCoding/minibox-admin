@@ -8,6 +8,7 @@ const routes = [
         //首页
         path: "/",
         name: "MyAdmin",
+        redirect:"/login",
         component: () => import("@/views/admin/MyAdmin"),
         children: [
             {
