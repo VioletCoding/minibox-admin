@@ -5,10 +5,9 @@ Vue.use(VueRouter);
 
 const routes = [
     {
-        //首页
         path: "/",
         name: "MyAdmin",
-        redirect:"/login",
+        redirect: "/login",
         component: () => import("@/views/admin/MyAdmin"),
         children: [
             {
@@ -17,8 +16,16 @@ const routes = [
                 name: "MyAdminLogin",
                 component: () => import("@/views/admin/MyAdminLogin")
             }
+            ,
+            {
+                //首页
+                path: "/index",
+                name: "MyAdminIndex",
+                component: () => import("@/components/MyIndex")
+            }
         ]
-    }
+    },
+
 ];
 
 const router = new VueRouter({
