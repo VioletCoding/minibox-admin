@@ -7,7 +7,7 @@ const routes = [
     {
         path: "/",
         name: "MyAdmin",
-        redirect: "/login",
+        redirect: "/index",
         component: () => import("@/views/admin/MyAdmin"),
         children: [
             {
@@ -19,9 +19,9 @@ const routes = [
             ,
             {
                 //首页
-                path: "/index",
+                path: "index",
                 name: "MyAdminIndex",
-                component: () => import("@/components/MyIndex")
+                component: () => import("@/views/admin/index/MyIndex")
             }
         ]
     },

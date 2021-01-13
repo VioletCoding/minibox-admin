@@ -1,5 +1,6 @@
 <template>
   <div class="container" v-if="dataFlag">
+
     <!--顶部导航-->
     <div class="m-topBar">
       <!--系统名-->
@@ -42,47 +43,74 @@
     </div>
     <!--顶部导航end-->
 
-    <!--侧边导航菜单-->
+    <div class="box">
+      <!--侧边导航菜单-->
+      <div class="m-menu">
+        <!--菜单组-->
+        <a-menu mode="inline"
+                :inline-collapsed="collapsed"
+                :defaultSelectedKeys="['index']">
 
-    <div class="m-menu">
-      <!--菜单组-->
-      <a-menu mode="inline"
-              :inline-collapsed="collapsed"
-              :defaultSelectedKeys="['index']">
+          <a-menu-item key="index">
+            <a-icon type="pie-chart"/>
+            <span>首页</span>
+          </a-menu-item>
 
-        <a-menu-item key="index">
-          <a-icon type="pie-chart"/>
-          <span>首页</span>
-        </a-menu-item>
-
-        <a-sub-menu v-for="(item,index) in menuList"
-                    :key="item.id">
+          <a-sub-menu v-for="(item,index) in menuList"
+                      :key="item.id">
 
           <span slot="title">
             <a-icon :type="item.menuIcon"/>
             <span>{{ item.menuName }}</span>
           </span>
 
-          <a-menu-item
-              v-for="(sub,subIndex) in item.subMenuList"
-              :key="sub.id">
-            {{ sub.subMenuName }}
-          </a-menu-item>
+            <a-menu-item
+                v-for="(sub,subIndex) in item.subMenuList"
+                :key="sub.id">
+              {{ sub.subMenuName }}
+            </a-menu-item>
 
-        </a-sub-menu>
+          </a-sub-menu>
 
-      </a-menu>
-      <!--菜单组end-->
+        </a-menu>
+        <!--菜单组end-->
+      </div>
+      <!--侧边导航菜单end-->
+
+      <!--右边的内容区域-->
+      <div class="m-right">
+        <!-- 面包屑 -->
+        <div>
+          <a-breadcrumb>
+            <a-breadcrumb-item>首页</a-breadcrumb-item>
+            <a-breadcrumb-item>首页</a-breadcrumb-item>
+          </a-breadcrumb>
+        </div>
+        <!-- 面包屑end -->
+
+        <!--flex 内容展示区-->
+        <div class="m-contain">
+          <div>
+            <MyHome></MyHome>
+          </div>
+        </div>
+        <!--flex 内容展示区end-->
+
+      </div>
+      <!--右边的内容区域end-->
+
     </div>
-    <!--侧边导航菜单end-->
+
   </div>
 </template>
 
 <script>
 import Api from "@/api/api";
+import MyHome from "@/views/admin/index/main/MyHome";
 
 export default {
   name: "MyIndexTopBar",
+  components: {MyHome},
   data() {
     return {
       //数据加载是否成功标识
@@ -102,13 +130,16 @@ export default {
     getMenuList() {
       this.$http.get(Api.getMenu)
           .then(resp => {
-            console.info("菜单列表回调=>", resp);
+            console.log("菜单回调=>", resp);
             this.menuList = resp.data.data;
-            console.warn("赋值=>", this.menuList);
             this.dataFlag = true;
           })
           .catch(err => {
             console.warn("菜单列表错误信息=>", err);
+            this.$message.error(err.response.data.message);
+          })
+          .finally(f => {
+            this.dataFlag = true;
           })
     }
   },
@@ -170,8 +201,28 @@ export default {
 
   }
 
-  .m-menu {
-    width: 200px;
+  .box {
+    width: 100%;
+    height: 93.5vh;
+    display: flex;
+    flex-direction: row;
   }
+
+  .m-menu {
+    height: 93.5vh;
+    background-color: white;
+  }
+
+  .m-right {
+    width: 100%;
+    padding: 20px;
+  }
+
+  .m-contain {
+    display: flex;
+    flex-direction: row;
+    padding: 20px;
+  }
+
 }
 </style>
