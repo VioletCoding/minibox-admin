@@ -29,13 +29,27 @@
           <a-input-search placeholder="输入搜索内容" style="width: 180px"/>
         </div>
 
-        <div class="inline-block user-info">
-          <a-avatar :size="30" icon="user"/>
-          <div class="inline-block">欢迎您 Violet</div>
-        </div>
+        <a-dropdown overlayClassName="user-info" placement="bottomCenter">
+          <div class="inline-block user-info">
+            <a-avatar :size="30"
+                      :src="userInfo.userImg"
+                      alt="头像"/>
+            <div class="inline-block">{{ userInfo.nickname }}</div>
+          </div>
+
+          <a-menu slot="overlay">
+            <a-menu-item v-for="item in 4">
+              <a href="#">
+                <a-icon type="user"/>
+                个人中心
+              </a>
+            </a-menu-item>
+          </a-menu>
+        </a-dropdown>
+
 
         <div class="inline-block m-top-right-logout">
-          <a-button type="primary" icon="logout">退出登录</a-button>
+          <a-button type="primary" icon="logout" @click="logoutConfirm">退出登录</a-button>
         </div>
 
       </div>
@@ -83,7 +97,6 @@
         <div>
           <a-breadcrumb>
             <a-breadcrumb-item>首页</a-breadcrumb-item>
-            <a-breadcrumb-item>首页</a-breadcrumb-item>
           </a-breadcrumb>
         </div>
         <!-- 面包屑end -->
@@ -118,7 +131,9 @@ export default {
       //导航菜单收缩
       collapsed: false,
       //菜单信息列表
-      menuList: []
+      menuList: [],
+      //用户信息
+      userInfo: {}
     }
   },
   methods: {
@@ -141,10 +156,50 @@ export default {
           .finally(f => {
             this.dataFlag = true;
           })
+    },
+    //获取部分用户信息
+    loadUserInfo() {
+      this.userInfo.nickname = localStorage.getItem("nickname");
+      this.userInfo.userImg = localStorage.getItem("userImg");
+      console.log("这是组装后的userInfo=>", this.userInfo);
+    },
+    //退出登录确认框
+    logoutConfirm() {
+      const realThis = this;
+      realThis.$confirm({
+        title: "确定要退出登录吗?",
+        okText: "确定",
+        cancelText: "取消",
+        onOk() {
+          realThis.$http.get(Api.logout)
+              .then(resp => {
+                realThis.$message.success("欢迎下次使用,再见");
+                realThis.$router.replace("/login");
+              })
+              .finally(f => {
+                sessionStorage.clear();
+                localStorage.clear();
+              })
+        },
+        onCancel() {
+          realThis.$message.warning("别乱点啊");
+        }
+      })
+    },
+    //根据时间显示上午好下午好之类的
+    loadTimeTip() {
+      const date = new Date();
+      let tip;
+      if (date.getHours() >= 0 && date.getHours() < 12) return tip = "上午好";
+      if (date.getHours() >= 12 && date.getHours() < 18) return tip = "下午好";
+      else return tip = "晚上好";
     }
   },
   mounted() {
     this.getMenuList();
+    this.loadUserInfo();
+    let tip = this.loadTimeTip();
+    this.$message.success(tip + " " + localStorage.getItem("nickname"));
   }
 
 }
@@ -158,7 +213,7 @@ export default {
 .container {
 
   .m-topBar {
-    background-color: #1890FF;
+    background-color: #1890ff;
     padding: 10px 0 0 20px;
     width: 100%;
     height: 60px;
@@ -186,6 +241,7 @@ export default {
 
       .user-info {
         margin-left: 40px;
+        cursor: pointer;
 
         div:nth-child(2) {
           margin-left: 20px;
@@ -219,9 +275,9 @@ export default {
   }
 
   .m-contain {
-    display: flex;
-    flex-direction: row;
     padding: 20px;
+    margin-top: 20px;
+    background-color: #F0F2F5;
   }
 
 }

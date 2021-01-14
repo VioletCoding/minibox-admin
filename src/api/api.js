@@ -2,6 +2,8 @@
 const auth = "user/before";
 //登陆注册复合接口
 const loginOrReg = "user/after";
+//登出接口
+const logout = "user/logout";
 
 //获取全部菜单，可选参数为id，menuName，不传返回全部
 const getMenu = "menu/all";
@@ -9,5 +11,6 @@ const getMenu = "menu/all";
 export default {
     auth,
     loginOrReg,
-    getMenu
+    getMenu,
+    logout
 }

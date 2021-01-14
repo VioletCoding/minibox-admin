@@ -1,20 +1,32 @@
-import Vue from 'vue'
-import App from './App.vue'
-import router from './router'
+import Vue from 'vue';
+import App from './App.vue';
+import router from './router';
+
+
+/**************************Ant**************************/
 import Antd from 'ant-design-vue';
 import 'ant-design-vue/dist/antd.css';
-import axios from 'axios'
-import VueAxios from 'vue-axios'
 
-Vue.config.productionTip = false
 Vue.use(Antd);
 /**************************Axios**************************/
-Vue.use(VueAxios, axios)
+import axios from 'axios';
+import VueAxios from 'vue-axios';
+
+Vue.use(VueAxios, axios);
+/**************************EChars**************************/
+import ECharts from 'vue-echarts';
+
+Vue.prototype.$echarts = ECharts;
+Vue.use(ECharts);
+/**************************Vue Config**************************/
+Vue.config.productionTip = false;
+let infiniteScroll = require("vue-infinite-scroll");
+Vue.use(infiniteScroll);
 
 new Vue({
     router,
     render: h => h(App)
-}).$mount('#app')
+}).$mount('#app');
 
 
 axios.defaults.baseURL = "http://192.168.0.105:20001/";
