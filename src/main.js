@@ -18,6 +18,11 @@ import ECharts from 'vue-echarts';
 
 Vue.prototype.$echarts = ECharts;
 Vue.use(ECharts);
+/**************************nprogress 加载进度条**************************/
+import NProgress from "nprogress";
+import "nprogress/nprogress.css";
+
+NProgress.configure({showSpinner: false, minimum: 0.2})
 /**************************Vue Config**************************/
 Vue.config.productionTip = false;
 let infiniteScroll = require("vue-infinite-scroll");
@@ -61,3 +66,28 @@ axios.interceptors.response.use(
         }
         return Promise.reject(error);
     });
+
+//校验权限
+function checkAuthentication() {
+    let token = localStorage.getItem("accessToken");
+    let tempToken = sessionStorage.getItem("accessToken");
+
+    if (token == "" || token == null || token == undefined) return false;
+    else return true;
+
+    if (tempToken == "" || tempToken == null || tempToken == undefined) return false;
+    else return true;
+}
+
+//路由前置守卫
+router.beforeEach((to, from, next) => {
+    if (to.name != "MyAdminLogin" && !checkAuthentication()) next({name: "MyAdminLogin"})
+    else {
+        NProgress.start();
+        next();
+    }
+})
+//路由后置守卫
+router.afterEach(transition => {
+    NProgress.done();
+})

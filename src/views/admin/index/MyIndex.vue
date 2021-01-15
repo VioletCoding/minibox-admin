@@ -101,13 +101,13 @@
         </div>
         <!-- 面包屑end -->
 
-        <!--flex 内容展示区-->
+        <!--内容展示区-->
         <div class="m-contain">
           <div>
             <MyHome></MyHome>
           </div>
         </div>
-        <!--flex 内容展示区end-->
+        <!--内容展示区end-->
 
       </div>
       <!--右边的内容区域end-->

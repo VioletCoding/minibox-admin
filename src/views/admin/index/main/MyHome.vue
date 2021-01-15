@@ -9,16 +9,16 @@
               v-for="(item,index) in cardContent"
               :key="index"
               :title="item.title"
-              :activeTabKey="item.activeTabKey"
-              :hoverable="item.hoverable">
+              :activeTabKey="index+''"
+              :hoverable="true">
 
         <a slot="extra"
            href="#">
           <a-icon type="info-circle"/>
         </a>
 
-        <a-statistic :value="126560"
-                     suffix="篇"/>
+        <a-statistic :value="item.number"
+                     :suffix="item.suffix"/>
       </a-card>
 
     </div>
@@ -32,13 +32,13 @@
       <div class="leaderboard">
         <div style="font-size: 18px;font-weight: bold">游戏销量排行榜</div>
         <a-list item-layout="vertical"
-                v-for="(item,index) in 10"
+                v-for="(item,index) in gameSalesRankings"
                 v-if="index < 7"
                 :key="index + 'leaderboard' ">
           <a-list-item>
             <a-badge :count="index + 1"/>
-            <span style="margin-left: 30px">{{ "游戏名" + (index + 1) }}</span>
-            <span style="float: right">{{ 1024 + index }}</span>
+            <span style="margin-left: 30px">{{ item.gameName }}</span>
+            <span style="float: right">{{ item.sales }}</span>
           </a-list-item>
         </a-list>
       </div>
@@ -54,72 +54,85 @@
 </template>
 
 <script>
+import Api from "@/api/api";
+
 export default {
   name: "MyHome",
   data() {
     return {
       //卡片内容
-      cardContent: [
-        {
-          title: "帖子数量",
-          activeTabKey: "1",
-          hoverable: true
-        },
-        {
-          title: "用户数量",
-          activeTabKey: "2",
-          hoverable: true
-        },
-        {
-          title: "游戏数量",
-          activeTabKey: "3",
-          hoverable: true
-        },
-        {
-          title: "评论数量",
-          activeTabKey: "4",
-          hoverable: true
-        }
-      ],
+      cardContent: [],
       //获取echarts实例
-      echarts: require("echarts")
+      echarts: require("echarts"),
+      //游戏销量排行榜
+      gameSalesRankings: []
     }
   },
   methods: {
-    //加载echarts
-    loadEcharts() {
+    //加载首页上的所有数据
+    loadAll() {
+      //横轴数据
+      let xAxisData = [];
+      //系列数据
+      let seriesData = [];
       // 基于准备好的dom，初始化echarts实例
       let myChart = this.echarts.init(document.getElementById("main"));
-      //绘制图表
-      myChart.setOption({
-        itemStyle: {
-          color: "#1890ff"
-        },
-        title: {
-          text: '每日发帖数情况一览'
-        },
-        tooltip: {},
-        xAxis: {
-          data: ['14日', '15日', '16日', '17日', '18日', '19日', '20日', '21日', '19日', '20日', '21日']
-        },
-        yAxis: {},
-        series: [{
-          name: '发帖数',
-          type: 'bar',
-          data: [5, 20, 36, 10, 10, 20, 30, 40, 20, 30, 40],
-          itemStyle: {
-            //改一下柱状图的颜色
-            color: params => {
-              //这里如果有多色的需求，那么多写几个，生成的柱状图颜色就会从里面取
-              let color = ["#1890ff"];
-              return color;
-            }
-          }
-        }]
-      });
+      myChart.showLoading();
+      //请求数据
+      this.$http.get(Api.getCount)
+          .then(resp => {
+            console.log("数据=>", resp);
+            let temp = resp.data.data;
+            //卡片内容
+            this.cardContent.push(
+                {title: "帖子数量", number: temp.post_number, suffix: "篇"},
+                {title: "用户数量", number: temp.user_number, suffix: "位"},
+                {title: "游戏数量", number: temp.game_number, suffix: "个"},
+                {title: "评论数量", number: temp.comment_number, suffix: "个"}
+            );
+            //每日发帖数
+            temp.echartsComment.forEach(item => {
+              xAxisData.push(item.createDate);
+              seriesData.push(item.postNumberPerDay);
+            });
+            //绘制图表
+            myChart.setOption({
+              itemStyle: {
+                color: "#1890ff"
+              },
+              title: {
+                text: '每日发帖数情况一览'
+              },
+              tooltip: {},
+              xAxis: {
+                data: xAxisData
+              },
+              yAxis: {},
+              series: [{
+                name: '发帖数',
+                type: 'bar',
+                data: seriesData,
+                itemStyle: {
+                  //改一下柱状图的颜色
+                  color: params => {
+                    //这里如果有多色的需求，那么多写几个，生成的柱状图颜色就会从里面取
+                    return ["#1890ff"];
+                  }
+                }
+              }]
+            });
+            //游戏销量排行榜
+            this.gameSalesRankings = temp.gameSalesRankings;
+            myChart.hideLoading();
+          })
+          .catch(err => {
+            console.error(err);
+            this.$message.error(err.response.data.message == "" ? "服务器繁忙" : err.response.data.message);
+          });
     },
     //加载底部echarts
     loadBottomEcharts() {
+
       let echarts = this.echarts.init(document.getElementById("bottom"));
 
       echarts.setOption({
@@ -145,10 +158,10 @@ export default {
         ]
       });
       return echarts;
-    }
+    },
   },
   mounted() {
-    this.loadEcharts();
+    this.loadAll();
     this.loadBottomEcharts();
   }
 }

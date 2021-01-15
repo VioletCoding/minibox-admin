@@ -6,11 +6,14 @@ const loginOrReg = "user/after";
 const logout = "user/logout";
 
 //获取全部菜单，可选参数为id，menuName，不传返回全部
-const getMenu = "menu/all";
+const getMenu = "admin/allMenu";
+//获取首页的「帖子数量」「用户数量」「游戏数量」「评论数量」
+const getCount = "admin/allCount";
 
 export default {
     auth,
     loginOrReg,
     getMenu,
-    logout
+    logout,
+    getCount
 }

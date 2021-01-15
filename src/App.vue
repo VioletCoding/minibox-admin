@@ -12,6 +12,10 @@ html, body, #app {
   overflow-x: hidden;
 }
 
+#nprogress .bar{
+  background: red !important;
+}
+
 ::-webkit-scrollbar {
   /*滚动条整体样式,高宽对应横竖滚动条尺寸*/
   width: 10px;
