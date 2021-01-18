@@ -9,7 +9,7 @@
               v-for="(item,index) in cardContent"
               :key="index"
               :title="item.title"
-              :activeTabKey="index+''"
+              :activeTabKey="index + '' "
               :hoverable="true">
 
         <a slot="extra"
@@ -71,10 +71,14 @@ export default {
   methods: {
     //加载首页上的所有数据
     loadAll() {
-      //横轴数据
+      //每日发帖-横轴数据
       let xAxisData = [];
-      //系列数据
+      //每日发帖-系列数据
       let seriesData = [];
+      //每日评论横轴
+      let commentXAxisData = [];
+      //每日评论系列
+      let commentSeriesData = [];
       // 基于准备好的dom，初始化echarts实例
       let myChart = this.echarts.init(document.getElementById("main"));
       myChart.showLoading();
@@ -88,14 +92,19 @@ export default {
                 {title: "帖子数量", number: temp.post_number, suffix: "篇"},
                 {title: "用户数量", number: temp.user_number, suffix: "位"},
                 {title: "游戏数量", number: temp.game_number, suffix: "个"},
-                {title: "评论数量", number: temp.comment_number, suffix: "个"}
+                {title: "评论数量", number: temp.comment_number, suffix: "条"}
             );
             //每日发帖数
-            temp.echartsComment.forEach(item => {
+            temp.echartsPost.forEach(item => {
               xAxisData.push(item.createDate);
               seriesData.push(item.postNumberPerDay);
             });
-            //绘制图表
+            //每日评论数
+            temp.commentPerDay.forEach(item => {
+              commentXAxisData.push(item.createDate);
+              commentSeriesData.push(item.commentNumberPerDay);
+            })
+            //绘制图表 - 每日发帖数情况一览
             myChart.setOption({
               itemStyle: {
                 color: "#1890ff"
@@ -121,48 +130,38 @@ export default {
                 }
               }]
             });
+            //绘制图表 - 每日评论数总览
+            let echartsComment = this.echarts.init(document.getElementById("bottom"));
+            echartsComment.showLoading();
+            //绘制图标 - 每日评论数情况一览
+            echartsComment.setOption({
+              title: {
+                text: "每日评论数情况一览"
+              },
+              tooltip: {},
+              xAxis: {
+                data: commentXAxisData
+              },
+              yAxis: {},
+              series: [{
+                name: "评论数",
+                type: "line",
+                data: commentSeriesData
+              }]
+            })
             //游戏销量排行榜
             this.gameSalesRankings = temp.gameSalesRankings;
             myChart.hideLoading();
+            echartsComment.hideLoading();
           })
           .catch(err => {
             console.error(err);
             this.$message.error(err.response.data.message == "" ? "服务器繁忙" : err.response.data.message);
           });
-    },
-    //加载底部echarts
-    loadBottomEcharts() {
-
-      let echarts = this.echarts.init(document.getElementById("bottom"));
-
-      echarts.setOption({
-        title: {
-          text: "每日评论数总览"
-        },
-        xAxis: {
-          type: "category",
-          data: ["1-14", "1-15", "1-16", "1-16", "1-16", "1-16"]
-        },
-        yAxis: {
-          type: "value"
-        },
-        series: [
-          {
-            data: [820, 564, 130, 522, 251, 202],
-            type: "line"
-          },
-          {
-            data: [80, 1030, 1440, 1050, 1260],
-            type: "line"
-          }
-        ]
-      });
-      return echarts;
-    },
+    }
   },
   mounted() {
     this.loadAll();
-    this.loadBottomEcharts();
   }
 }
 </script>

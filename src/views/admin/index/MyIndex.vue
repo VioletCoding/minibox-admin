@@ -38,7 +38,7 @@
           </div>
 
           <a-menu slot="overlay">
-            <a-menu-item v-for="item in 4">
+            <a-menu-item v-for="(item,index) in 4" :key="index">
               <a href="#">
                 <a-icon type="user"/>
                 个人中心
@@ -63,15 +63,17 @@
         <!--菜单组-->
         <a-menu mode="inline"
                 :inline-collapsed="collapsed"
-                :defaultSelectedKeys="['index']">
+                :defaultSelectedKeys="['index']"
+        >
 
-          <a-menu-item key="index">
+          <a-menu-item key="index" @click="showIndex">
             <a-icon type="pie-chart"/>
             <span>首页</span>
           </a-menu-item>
 
           <a-sub-menu v-for="(item,index) in menuList"
-                      :key="item.id">
+                      :key="item.id"
+          >
 
           <span slot="title">
             <a-icon :type="item.menuIcon"/>
@@ -79,9 +81,11 @@
           </span>
 
             <a-menu-item
-                v-for="(sub,subIndex) in item.subMenuList"
-                :key="sub.id">
-              {{ sub.subMenuName }}
+                v-for="(subMenu,subIndex) in item.subMenuList"
+                :key="subMenu.id"
+                @click="routerPush(subMenu.subMenuRouteUrl)"
+            >
+              {{ subMenu.subMenuName }}
             </a-menu-item>
 
           </a-sub-menu>
@@ -104,7 +108,7 @@
         <!--内容展示区-->
         <div class="m-contain">
           <div>
-            <MyHome></MyHome>
+            <router-view></router-view>
           </div>
         </div>
         <!--内容展示区end-->
@@ -119,11 +123,9 @@
 
 <script>
 import Api from "@/api/api";
-import MyHome from "@/views/admin/index/main/MyHome";
 
 export default {
-  name: "MyIndexTopBar",
-  components: {MyHome},
+  name: "MyIndex",
   data() {
     return {
       //数据加载是否成功标识
@@ -193,6 +195,16 @@ export default {
       if (date.getHours() >= 0 && date.getHours() < 12) return tip = "上午好";
       if (date.getHours() >= 12 && date.getHours() < 18) return tip = "下午好";
       else return tip = "晚上好";
+    },
+    //去主页，这个分离开
+    showIndex() {
+      this.$router.push("/home");
+    },
+    //跳转到对应的菜单
+    routerPush(url){
+      console.log(url);
+      //if (url == "" || url == null || url == undefined) return 0;
+      this.$router.push(url);
     }
   },
   mounted() {

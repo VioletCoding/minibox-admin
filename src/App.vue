@@ -13,7 +13,7 @@ html, body, #app {
 }
 
 #nprogress .bar{
-  background: red !important;
+  background: green !important;
 }
 
 ::-webkit-scrollbar {

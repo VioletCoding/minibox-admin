@@ -1,27 +1,36 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-
+//解决路由跳转同一路由的报错问题
+const originalPush = VueRouter.prototype.push;
+VueRouter.prototype.push = location => {
+    return originalPush.call(this, location).catch(err => err);
+}
 Vue.use(VueRouter);
 
 const routes = [
     {
+        //登录页
+        path: "/login",
+        name: "MyAdminLogin",
+        component: () => import("@/views/admin/MyAdminLogin")
+    },
+    {
         path: "/",
         name: "MyAdmin",
-        redirect: "/index",
+        redirect: "/home",
         component: () => import("@/views/admin/MyAdmin"),
         children: [
             {
-                //登录页
-                path: "login",
-                name: "MyAdminLogin",
-                component: () => import("@/views/admin/MyAdminLogin")
-            }
-            ,
-            {
                 //首页
-                path: "index",
-                name: "MyAdminIndex",
-                component: () => import("@/views/admin/index/MyIndex")
+                path: "home",
+                name: "MyAdminHome",
+                component: () => import("@/views/admin/index/main/MyHome")
+            },
+            {
+                //用户列表
+                path:"userList",
+                name:"MyAdminUserList",
+                component: () => import("@/views/admin/index/main/user/MyUserList")
             }
         ]
     },
