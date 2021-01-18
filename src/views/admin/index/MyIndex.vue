@@ -203,7 +203,7 @@ export default {
     //跳转到对应的菜单
     routerPush(url){
       console.log(url);
-      //if (url == "" || url == null || url == undefined) return 0;
+      if (url == "" || url == null || url == undefined) return 0;
       this.$router.push(url);
     }
   },

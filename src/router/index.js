@@ -1,10 +1,10 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 //解决路由跳转同一路由的报错问题
-const originalPush = VueRouter.prototype.push;
-VueRouter.prototype.push = location => {
-    return originalPush.call(this, location).catch(err => err);
-}
+//const originalPush = VueRouter.prototype.push;
+//VueRouter.prototype.push = location => {
+//    return originalPush.call(this, location).catch(err => err);
+//}
 Vue.use(VueRouter);
 
 const routes = [

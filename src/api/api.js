@@ -9,11 +9,17 @@ const logout = "user/logout";
 const getMenu = "admin/allMenu";
 //获取首页的「帖子数量」「用户数量」「游戏数量」「评论数量」
 const getCount = "admin/allCount";
+//获取用户列表
+const getUserList = "admin/userList";
+//删除用户
+const deleteUser = "admin/deleteUser";
 
 export default {
     auth,
     loginOrReg,
     getMenu,
     logout,
-    getCount
+    getCount,
+    getUserList,
+    deleteUser
 }
