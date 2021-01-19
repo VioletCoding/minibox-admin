@@ -38,7 +38,7 @@
           </div>
 
           <a-menu slot="overlay">
-            <a-menu-item v-for="(item,index) in 4" :key="index">
+            <a-menu-item>
               <a href="#">
                 <a-icon type="user"/>
                 个人中心
@@ -63,28 +63,25 @@
         <!--菜单组-->
         <a-menu mode="inline"
                 :inline-collapsed="collapsed"
-                :defaultSelectedKeys="['index']"
+                :defaultSelectedKeys="[this.$route.path]"
+                :selectedKeys="[this.$route.path]"
         >
 
-          <a-menu-item key="index" @click="showIndex">
+          <a-menu-item key="/home" @click="showIndex">
             <a-icon type="pie-chart"/>
             <span>首页</span>
           </a-menu-item>
 
-          <a-sub-menu v-for="(item,index) in menuList"
-                      :key="item.id"
-          >
+          <a-sub-menu v-for="(item,index) in menuList" :key="index + 'subMenu' ">
 
           <span slot="title">
             <a-icon :type="item.menuIcon"/>
             <span>{{ item.menuName }}</span>
           </span>
 
-            <a-menu-item
-                v-for="(subMenu,subIndex) in item.subMenuList"
-                :key="subMenu.id"
-                @click="routerPush(subMenu.subMenuRouteUrl)"
-            >
+            <a-menu-item v-for="subMenu in item.subMenuList"
+                         :key="subMenu.subMenuRouteUrl"
+                         @click="routerPush(subMenu.subMenuRouteUrl)">
               {{ subMenu.subMenuName }}
             </a-menu-item>
 
@@ -201,7 +198,7 @@ export default {
       this.$router.push("/home");
     },
     //跳转到对应的菜单
-    routerPush(url){
+    routerPush(url) {
       console.log(url);
       if (url == "" || url == null || url == undefined) return 0;
       this.$router.push(url);

@@ -36,13 +36,14 @@
     <div style="margin-top: 20px">
       <a-table :columns="columns"
                :data-source="userList"
-               rowKey="id">
+               rowKey="id"
+               style="background-color: white"
+      >
 
-        <template #roleList="roles">
-          <a-tag v-for="role in roles"
-                 :key="role"
-                 :color=" role.name =='ADMIN'? 'red' : 'cyan' "
-          >
+        <template #roleList="roles,record">
+          <a-tag v-for="(role,roleIndex) in roles"
+                 :key="roleIndex + 'role' "
+                 :color=" role.name =='ADMIN'? 'red' : 'cyan' ">
             {{ role.name }}
           </a-tag>
         </template>
@@ -51,7 +52,8 @@
           <!--编辑区-->
           <a-button type="primary"
                     style="margin-right: 20px"
-                    @click="modalHandlerUpdate(record)">修改
+                    @click="modalHandlerUpdate(record)">
+            修改
           </a-button>
 
           <a-modal :title=" '修改 ' + modalOperation.singleUserUpdate.nickname + ' 的个人信息' "
@@ -62,6 +64,7 @@
                    ok-text="确定"
                    @ok="modalHandlerOk"
                    :destroyOnClose="true"
+                   :mask="false"
           >
             <a-form-model :label-col="{span:4}"
                           :wrapper-col="{span:18}"
@@ -95,8 +98,9 @@
               cancel-text="否"
               @confirm="confirmDeleteUser(record.id)"
           >
-            <a-button type="danger">删除</a-button>
+            <a-button type="danger" style="margin-right: 20px">删除</a-button>
           </a-popconfirm>
+
         </template>
 
       </a-table>
@@ -159,9 +163,12 @@ export default {
       userList: [],
       //对话框属性
       modalOperation: {
+        //修改按钮
         visible: false,
+        //tag的X，也就是closeable
+        tagModalVisible: false,
         confirmLoading: false,
-        singleUserUpdate: {}
+        singleUserUpdate: {},
       },
       //查询用户可用参数
       queryUserParams: {
@@ -182,11 +189,11 @@ export default {
     confirmDeleteUser(id) {
       let local = localStorage.getItem("userId");
       let session = sessionStorage.getItem("userId");
-      if (id != local || id != session) return this.$message.warning("你不能删除自己");
+      if (id == local || id == session) return this.$message.warning("你不能删除自己");
       this.$http.get(Api.deleteUser, {params: {id: id}})
           .then(resp => {
             this.$message.success(resp.data.message);
-            this.$router.go(0);
+            this.getUserList();
           })
           .catch(err => this.$message.error(err.response.data.message == "" ? "服务器开小差了" : err.response.data.message))
     },
@@ -214,6 +221,7 @@ export default {
     radioChange(e) {
       this.modalOperation.singleUserUpdate.userState = e.target.value;
     },
+    //用户状态单选框改变回调
     stateRadioChange(e) {
       this.queryUserParams.userState = e.target.value;
     },
