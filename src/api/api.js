@@ -15,7 +15,7 @@ const getUserList = "admin/userList";
 const updateUser = "admin/updateUser";
 //删除用户
 const deleteUser = "admin/deleteUser";
-//删除用户角色
+//删除用户管理员角色
 const deleteRole = "admin/deleteRole";
 
 export default {

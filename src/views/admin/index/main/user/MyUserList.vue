@@ -41,11 +41,24 @@
       >
 
         <template #roleList="roles,record">
-          <a-tag v-for="(role,roleIndex) in roles"
-                 :key="roleIndex + 'role' "
-                 :color=" role.name =='ADMIN'? 'red' : 'cyan' ">
-            {{ role.name }}
-          </a-tag>
+          <a-tooltip>
+            <template #title>
+              点击标签可以删除角色
+            </template>
+            <a-popconfirm
+                title="确定要删除吗？"
+                ok-text="确定"
+                cancel-text="取消"
+                @confirm="removeAdminRole(record)"
+                @cancel="()=>{return false;}"
+            >
+              <a-tag v-for="(role,roleIndex) in roles"
+                     :key="roleIndex + 'role' "
+                     :color=" role.name =='ADMIN'? 'red' : 'cyan' ">
+                {{ role.name }}
+              </a-tag>
+            </a-popconfirm>
+          </a-tooltip>
         </template>
 
         <template #action="text,record,index">
@@ -111,6 +124,7 @@
 
 <script>
 import Api from "@/api/api";
+import Util from "@/api/util";
 //table 列
 const columns = [
   {
@@ -169,6 +183,7 @@ export default {
         tagModalVisible: false,
         confirmLoading: false,
         singleUserUpdate: {},
+        modalText: ""
       },
       //查询用户可用参数
       queryUserParams: {
@@ -233,6 +248,23 @@ export default {
         userState: this.queryUserParams.userState
       }).then(resp => this.userList = resp.data.data)
           .catch(err => err);
+    },
+    //删除管理员角色，无法删除用户角色，删除用户角色就相当于这个用户被删除了
+    removeAdminRole(record) {
+      let userId = Util.getLoginUserId();
+      if (userId == record.id){
+        this.$notification.warning({
+          message: "您正在删除自己的管理员角色，请谨慎操作！"
+        })
+      }
+      this.$http.get(Api.deleteRole, {params: {userId: record.id}})
+          .then(resp => {
+            if (resp.data.code == 200) {
+              return this.$notification["success"]({message: "已移除该用户的管理员身份"});
+              this.getUserList();
+            } else return this.$notification["warning"]({message: resp.data.message});
+          })
+          .catch(err => err)
     }
   },
   mounted() {
