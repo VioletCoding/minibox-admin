@@ -11,6 +11,8 @@ const getMenu = "admin/allMenu";
 const getCount = "admin/allCount";
 //获取用户列表
 const getUserList = "admin/userList";
+//更新用户信息
+const updateUser = "admin/updateUser";
 //删除用户
 const deleteUser = "admin/deleteUser";
 
@@ -21,5 +23,6 @@ export default {
     logout,
     getCount,
     getUserList,
-    deleteUser
+    deleteUser,
+    updateUser
 }

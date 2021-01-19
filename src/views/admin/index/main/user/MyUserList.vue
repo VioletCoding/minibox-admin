@@ -5,79 +5,86 @@
     <div style="background-color: white;padding: 20px">
       <div>
         <span>用户标识：</span>
-        <a-input class="inputField" placeholder="请输入最小值为10000的整数"/>
+        <a-input class="inputField"
+                 placeholder="请输入用户id"
+                 v-model="queryUserParams.id"/>
         <span>用户昵称：</span>
-        <a-input class="inputField" placeholder="请输入用户的昵称"/>
+        <a-input class="inputField"
+                 placeholder="请输入用户昵称"
+                 v-model="queryUserParams.nickname"/>
       </div>
 
       <div style="margin-top: 20px;display: inline-block">
-        <span>用户角色：</span>
-        <a-select
-            class="inputField"
-            default-value="USER">
-          <a-select-option
-              v-for="(item,index) in userRoles"
-              :key="index + 'roles' "
-              :value="item.roleType">
-            {{ item.roleName }}
-          </a-select-option>
-        </a-select>
-
         <span>用户状态：</span>
-        <a-select
-            class="inputField"
-            default-value="NORMAL">
-          <a-select-option
-              v-for="(item,index) in userStatus"
-              :key="index"
-              :value="item.status">
-            {{ item.statusName }}
-          </a-select-option>
-        </a-select>
+        <a-radio-group default-value="NORMAL"
+                       style="margin-right: 50px"
+                       button-style="solid"
+                       @change="stateRadioChange">
+          <a-radio-button value="NORMAL">正常</a-radio-button>
+          <a-radio-button value="INVALID">非法</a-radio-button>
+          <a-radio-button value="BANNED">封禁</a-radio-button>
+        </a-radio-group>
       </div>
 
-      <div style="margin-top: 20px;display: inline-block">
-        <a-button type="primary" style="margin-right: 30px">查询</a-button>
-        <a-button type="default">重置</a-button>
+      <div style="display: inline-block">
+        <a-button type="primary" @click="queryUser">查询</a-button>
       </div>
 
     </div>
     <!--搜索表单区end-->
     <!--列表展示区-->
     <div style="margin-top: 20px">
-      <a-table :columns="columns" :data-source="userList" rowKey="id">
-        <span slot="action" slot-scope="text,record,index">
-        <!--编辑区-->
+      <a-table :columns="columns"
+               :data-source="userList"
+               rowKey="id">
+
+        <template #roleList="roles">
+          <a-tag v-for="role in roles"
+                 :key="role"
+                 :color=" role.name =='ADMIN'? 'red' : 'cyan' "
+          >
+            {{ role.name }}
+          </a-tag>
+        </template>
+
+        <template #action="text,record,index">
+          <!--编辑区-->
           <a-button type="primary"
                     style="margin-right: 20px"
-                    @click="modalOperation.visible=true">修改</a-button>
-          <a-modal
-              :title=" '修改' + record.nickname + '的个人信息' "
-              :visible="modalOperation.visible"
-              :confirm-loading="modalOperation.confirmLoading"
-              @cancel="modalOperation.visible=false"
-              cancel-text="取消"
-              ok-text="确定"
-              @ok="modalHandlerOk()"
+                    @click="modalHandlerUpdate(record)">修改
+          </a-button>
+
+          <a-modal :title=" '修改 ' + modalOperation.singleUserUpdate.nickname + ' 的个人信息' "
+                   :visible="modalOperation.visible"
+                   :confirm-loading="modalOperation.confirmLoading"
+                   @cancel="modalOperation.visible=false"
+                   cancel-text="取消"
+                   ok-text="确定"
+                   @ok="modalHandlerOk"
+                   :destroyOnClose="true"
           >
-            <a-form-model :label-col="{span:4}" :wrapper-col="{span:18}">
+            <a-form-model :label-col="{span:4}"
+                          :wrapper-col="{span:18}"
+            >
               <a-form-model-item label="用户昵称">
-                <a-input :value="record.nickname"/>
+                <a-input v-model="modalOperation.singleUserUpdate.nickname"/>
               </a-form-model-item>
+
               <a-form-model-item label="用户状态">
-                <a-select :default-value="record.userState">
-                  <a-select-option
-                      v-for="(item,index) in userStatus"
-                      :key="index + 'modalIndex' "
-                      :value="item.status"
-                  >
-                    {{ item.statusName }}
-                  </a-select-option>
-                </a-select>
+                <a-radio-group :default-value="modalOperation.singleUserUpdate.userState"
+                               button-style="solid"
+                               @change="radioChange"
+                >
+                  <a-radio-button value="NORMAL">正常</a-radio-button>
+                  <a-radio-button value="INVALID">非法</a-radio-button>
+                  <a-radio-button value="BANNED">封禁</a-radio-button>
+                </a-radio-group>
               </a-form-model-item>
+
               <a-form-model-item label="个人简介">
-                <a-input :value="record.description"/>
+                <a-input v-model="modalOperation.singleUserUpdate.description"/>
               </a-form-model-item>
+
             </a-form-model>
           </a-modal>
           <!--编辑区end-->
@@ -88,9 +95,9 @@
               cancel-text="否"
               @confirm="confirmDeleteUser(record.id)"
           >
-          <a-button type="danger">删除</a-button>
+            <a-button type="danger">删除</a-button>
           </a-popconfirm>
-        </span>
+        </template>
 
       </a-table>
     </div>
@@ -113,6 +120,11 @@ const columns = [
   {
     dataIndex: 'userState',
     title: '用户状态'
+  },
+  {
+    dataIndex: 'roleList',
+    title: "用户角色",
+    scopedSlots: {customRender: "roleList"}
   },
   {
     dataIndex: 'level',
@@ -142,15 +154,6 @@ export default {
   name: "MyUserList",
   data() {
     return {
-      //用户状态
-      userStatus: [
-        {status: "NORMAL", statusName: "正常"},
-        {status: "INVALID", statusName: "失效"},
-        {status: "BANNED", statusName: "被封禁"}
-      ],
-      //用户角色
-      userRoles: [{roleName: "管理员", roleType: "ADMIN"}, {roleName: "用户", roleType: "USER"}],
-      //table 列
       columns,
       //用户信息
       userList: [],
@@ -158,27 +161,28 @@ export default {
       modalOperation: {
         visible: false,
         confirmLoading: false,
-        modalColumns: [
-          {title: "用户昵称", value: ""},
-          {title: "用户状态", value: ""},
-          {title: "个人简介", value: ""},
-          {title: "用户名", value: ""}
-        ]
+        singleUserUpdate: {}
+      },
+      //查询用户可用参数
+      queryUserParams: {
+        id: "",
+        nickname: "",
+        userState: ""
       }
     }
   },
   methods: {
     //获取用户列表
     getUserList() {
-      this.$http.get(Api.getUserList)
+      this.$http.post(Api.getUserList)
           .then(resp => this.userList = resp.data.data)
           .catch(err => err)
     },
     //确定删除用户
     confirmDeleteUser(id) {
       let local = localStorage.getItem("userId");
-      let temp = sessionStorage.getItem("userId");
-      if (id != local || id != temp) return this.$message.warning("你不能删除自己");
+      let session = sessionStorage.getItem("userId");
+      if (id != local || id != session) return this.$message.warning("你不能删除自己");
       this.$http.get(Api.deleteUser, {params: {id: id}})
           .then(resp => {
             this.$message.success(resp.data.message);
@@ -186,10 +190,41 @@ export default {
           })
           .catch(err => this.$message.error(err.response.data.message == "" ? "服务器开小差了" : err.response.data.message))
     },
+    //点击修改按钮
+    modalHandlerUpdate(record) {
+      this.modalOperation.visible = true
+      this.modalOperation.singleUserUpdate = record;
+    },
     //modal点击了ok
     modalHandlerOk() {
-      this.$message.success("Yeah~");
-      this.modalOperation.visible = false;
+      this.modalOperation.confirmLoading = true;
+      this.$http.post(Api.updateUser, this.modalOperation.singleUserUpdate)
+          .then(resp => {
+            this.$message.success("修改成功");
+            this.modalOperation.confirmLoading = false;
+            this.modalOperation.visible = false;
+          })
+          .catch(err => {
+            this.$message.error("修改失败 " + err.response.data.message);
+            this.modalOperation.confirmLoading = false;
+            this.modalOperation.visible = false;
+          })
+    },
+    //Modal里的用户状态 单选框回调
+    radioChange(e) {
+      this.modalOperation.singleUserUpdate.userState = e.target.value;
+    },
+    stateRadioChange(e) {
+      this.queryUserParams.userState = e.target.value;
+    },
+    //条件查询用户
+    queryUser() {
+      this.$http.post(Api.getUserList, {
+        id: this.queryUserParams.id,
+        nickname: this.queryUserParams.nickname,
+        userState: this.queryUserParams.userState
+      }).then(resp => this.userList = resp.data.data)
+          .catch(err => err);
     }
   },
   mounted() {
