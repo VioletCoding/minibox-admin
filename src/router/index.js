@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
+
 Vue.use(VueRouter);
 
 const routes = [
@@ -23,9 +24,15 @@ const routes = [
             },
             {
                 //用户列表
-                path:"userList",
-                name:"MyAdminUserList",
+                path: "userList",
+                name: "MyAdminUserList",
                 component: () => import("@/views/admin/index/main/user/MyUserList")
+            },
+            {
+                //角色列表
+                path: "roleList",
+                name: "MyAdminRoleList",
+                component: () => import("@/views/admin/index/main/user/MyRoleList")
             }
         ]
     },

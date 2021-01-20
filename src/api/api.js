@@ -19,6 +19,8 @@ const deleteUser = "admin/deleteUser";
 const deleteRole = "admin/deleteRole";
 //添加管理员角色
 const addRole = "admin/addRole";
+//显示角色列表
+const showRoles = "admin/showRoles";
 
 export default {
     auth,
@@ -30,5 +32,6 @@ export default {
     deleteUser,
     updateUser,
     deleteRole,
-    addRole
+    addRole,
+    showRoles
 }

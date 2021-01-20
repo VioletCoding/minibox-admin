@@ -52,7 +52,7 @@
                 @cancel="()=>{return false}">
               <a-tag v-for="(role,roleIndex) in roles"
                      :key="roleIndex + 'role' "
-                     :color=" role.name =='ADMIN'? 'red' : 'cyan' ">
+                     :color=" role.id ==10001? 'red' : 'cyan' ">
                 {{ role.name }}
               </a-tag>
             </a-popconfirm>
