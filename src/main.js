@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import App from './App.vue';
 import router from './router';
-
+import util from "@/api/util";
 /**************************Ant**************************/
 import Antd from 'ant-design-vue';
 import 'ant-design-vue/dist/antd.css';
@@ -55,32 +55,16 @@ axios.interceptors.response.use(
     },
     error => {
         let status = error.response.status;
-        // TODO 响应拦截器
         if (status == 401) {
-            localStorage.removeItem("accessToken");
-            localStorage.removeItem("userId");
-            sessionStorage.removeItem("accessToken");
-            sessionStorage.removeItem("userId");
-            router.replace("/login")
+            util.removeAllAuthenticate();
+            router.replace("/login");
         }
         return Promise.reject(error);
     });
 
-//校验权限
-function checkAuthentication() {
-    let token = localStorage.getItem("accessToken");
-    let tempToken = sessionStorage.getItem("accessToken");
-
-    if (token == "" || token == null || token == undefined) return false;
-    else return true;
-
-    if (tempToken == "" || tempToken == null || tempToken == undefined) return false;
-    else return true;
-}
-
 //路由前置守卫
 router.beforeEach((to, from, next) => {
-    if (to.name != "MyAdminLogin" && !checkAuthentication()) next({name: "MyAdminLogin"})
+    if (to.name != "MyAdminLogin" && !util.isLoginUserTokenExist()) next({name: "MyAdminLogin"})
     else {
         NProgress.start();
         next();

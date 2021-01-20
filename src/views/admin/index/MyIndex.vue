@@ -94,14 +94,6 @@
 
       <!--右边的内容区域-->
       <div class="m-right">
-        <!-- 面包屑 -->
-        <div>
-          <a-breadcrumb>
-            <a-breadcrumb-item>首页</a-breadcrumb-item>
-          </a-breadcrumb>
-        </div>
-        <!-- 面包屑end -->
-
         <!--内容展示区-->
         <div class="m-contain">
           <div>
@@ -144,23 +136,16 @@ export default {
     getMenuList() {
       this.$http.get(Api.getMenu)
           .then(resp => {
-            console.log("菜单回调=>", resp);
             this.menuList = resp.data.data;
             this.dataFlag = true;
           })
-          .catch(err => {
-            console.warn("菜单列表错误信息=>", err);
-            this.$message.error(err.response.data.message);
-          })
-          .finally(f => {
-            this.dataFlag = true;
-          })
+          .catch(err => this.$message.error(err.response.data.message == "" ? "服务器开小差了" : err.response.data.message))
+          .finally(f => this.dataFlag = true)
     },
     //获取部分用户信息
     loadUserInfo() {
       this.userInfo.nickname = localStorage.getItem("nickname");
       this.userInfo.userImg = localStorage.getItem("userImg");
-      console.log("这是组装后的userInfo=>", this.userInfo);
     },
     //退出登录确认框
     logoutConfirm() {
@@ -193,13 +178,12 @@ export default {
       if (date.getHours() >= 12 && date.getHours() < 18) return tip = "下午好";
       else return tip = "晚上好";
     },
-    //去主页，这个分离开
+    //去主页，这个和子菜单分离
     showIndex() {
       this.$router.push("/home");
     },
     //跳转到对应的菜单
     routerPush(url) {
-      console.log(url);
       if (url == "" || url == null || url == undefined) return 0;
       this.$router.push(url);
     }
@@ -208,7 +192,7 @@ export default {
     this.getMenuList();
     this.loadUserInfo();
     let tip = this.loadTimeTip();
-    this.$message.success(tip + " " + localStorage.getItem("nickname"));
+    this.$notification.success({message: tip + " " + localStorage.getItem("nickname")});
   }
 
 }

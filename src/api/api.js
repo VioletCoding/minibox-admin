@@ -17,6 +17,8 @@ const updateUser = "admin/updateUser";
 const deleteUser = "admin/deleteUser";
 //删除用户管理员角色
 const deleteRole = "admin/deleteRole";
+//添加管理员角色
+const addRole = "admin/addRole";
 
 export default {
     auth,
@@ -27,5 +29,6 @@ export default {
     getUserList,
     deleteUser,
     updateUser,
-    deleteRole
+    deleteRole,
+    addRole
 }
