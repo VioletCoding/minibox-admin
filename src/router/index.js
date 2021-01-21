@@ -33,6 +33,12 @@ const routes = [
                 path: "roleList",
                 name: "MyAdminRoleList",
                 component: () => import("@/views/admin/index/main/user/MyRoleList")
+            },
+            {
+                //菜单列表
+                path: "menuList",
+                name: "MyAdminMenuList",
+                component: () => import("@/views/admin/index/main/menu/MyMenuList")
             }
         ]
     },

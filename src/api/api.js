@@ -21,6 +21,10 @@ const deleteRole = "admin/deleteRole";
 const addRole = "admin/addRole";
 //显示角色列表
 const showRoles = "admin/showRoles";
+//修改父菜单信息
+const updateParentMenu = "admin/updateParentMenu";
+//修改子菜单信息
+const updateSubMenu = "admin/updateSubMenu";
 
 export default {
     auth,
@@ -33,5 +37,7 @@ export default {
     updateUser,
     deleteRole,
     addRole,
-    showRoles
+    showRoles,
+    updateParentMenu,
+    updateSubMenu
 }

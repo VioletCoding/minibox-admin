@@ -80,9 +80,9 @@
           </span>
 
             <a-menu-item v-for="subMenu in item.subMenuList"
-                         :key="subMenu.subMenuRouteUrl"
-                         @click="routerPush(subMenu.subMenuRouteUrl)">
-              {{ subMenu.subMenuName }}
+                         :key="subMenu.url"
+                         @click="routerPush(subMenu.url)">
+              {{ subMenu.menuName }}
             </a-menu-item>
 
           </a-sub-menu>
@@ -140,7 +140,6 @@ export default {
             this.dataFlag = true;
           })
           .catch(err => this.$message.error(err.response.data.message == "" ? "服务器开小差了" : err.response.data.message))
-          .finally(f => this.dataFlag = true)
     },
     //获取部分用户信息
     loadUserInfo() {
