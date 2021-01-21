@@ -25,6 +25,10 @@ const showRoles = "admin/showRoles";
 const updateParentMenu = "admin/updateParentMenu";
 //修改子菜单信息
 const updateSubMenu = "admin/updateSubMenu";
+//添加父菜单
+const addParentMenu = "admin/addParentMenu";
+//添加子菜单
+const addSubMenu = "admin/addSubMenu";
 
 export default {
     auth,
@@ -39,5 +43,7 @@ export default {
     addRole,
     showRoles,
     updateParentMenu,
-    updateSubMenu
+    updateSubMenu,
+    addParentMenu,
+    addSubMenu
 }

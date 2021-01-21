@@ -28,7 +28,7 @@
           <a-button type="primary" @click="showModal(record)">修改</a-button>
 
           <a-modal :visible="tableOps.modalOps.visible"
-                   @cancel="tableOps.modalOps.visible=false"
+                   @cancel="closeModal"
                    @ok="updateMenuInfo"
                    :confirm-loading="tableOps.modalOps.confirmLoading"
                    :mask="false"
@@ -51,10 +51,43 @@
                 <a-input v-model="tableOps.modalOps.inputValue.menuName"/>
               </a-form-model-item>
 
+              <a-form-model-item label="菜单路径">
+                <a-input v-model="tableOps.modalOps.inputValue.url" :disabled="tableOps.modalOps.isDisabled"/>
+              </a-form-model-item>
+
             </a-form-model>
           </a-modal>
 
-          <a-button style="margin-left: 20px">添加</a-button>
+          <a-button style="margin-left: 20px" @click="showAddMenuModal(record)">添加</a-button>
+
+          <a-modal :visible="addMenuModalOps.visible"
+                   @cancel="closeModal"
+                   @ok="addMenu"
+                   :confirm-loading="addMenuModalOps.confirmLoading"
+                   :mask="false"
+                   :destroyOnClose="true"
+                   title="添加菜单">
+
+            <a-form-model :label-col="{span:4}" :wrapper-col="{span:14}">
+
+              <a-form-model-item label="菜单图标">
+                <a-input v-model="addMenuModalOps.inputValue.menuIcon">
+                  <a-icon v-if="addMenuModalOps.inputValue.menuIcon != '' "
+                          slot="prefix" :type="addMenuModalOps.inputValue.menuIcon"/>
+                </a-input>
+              </a-form-model-item>
+
+              <a-form-model-item label="菜单名称">
+                <a-input v-model="addMenuModalOps.inputValue.menuName"/>
+              </a-form-model-item>
+
+              <a-form-model-item label="菜单路径">
+
+                <a-input v-model="addMenuModalOps.inputValue.url" :disabled="addMenuModalOps.isDisabled"/>
+              </a-form-model-item>
+
+            </a-form-model>
+          </a-modal>
 
           <a-popconfirm title="确定要删除这个菜单吗？">
             <a-button type="danger" style="margin-left: 20px;">删除</a-button>
@@ -118,8 +151,20 @@ export default {
         modalOps: {
           visible: false,
           confirmLoading: false,
-          inputValue: {}
+          //模态框里的输入框，记录那一行record的值
+          inputValue: {},
+          //是否禁用输入框
+          isDisabled: false
         }
+      },
+      //添加按钮的模态框
+      addMenuModalOps: {
+        //模态框可操作项
+        visible: false,
+        confirmLoading: false,
+        isDisabled: false,
+        //模态框里的输入框，记录那一行record的值
+        inputValue: {}
       },
       //数据源
       menuList: []
@@ -129,10 +174,12 @@ export default {
     //获取菜单信息
     getMenuList() {
       this.tableOps.isLoading = true;
-      this.$http.get(Api.getMenu).then(resp => {
-        this.menuList = resp.data.data;
-        this.tableOps.isLoading = false;
-      })
+      this.$http.get(Api.getMenu)
+          .then(resp => {
+            this.menuList = resp.data.data;
+            this.tableOps.isLoading = false;
+          })
+          .catch(err => err)
     },
     //搜索菜单
     searchMenu() {
@@ -143,18 +190,29 @@ export default {
             this.menuList = resp.data.data;
             this.tableOps.isLoading = false;
           })
+          .catch(err => err)
     },
     //显示modal，并且把那一列的record存起来方便使用
     showModal(record) {
       this.tableOps.modalOps.visible = true;
       this.tableOps.modalOps.inputValue = record;
+      if (this.tableOps.modalOps.inputValue.url == undefined) this.tableOps.modalOps.isDisabled = true;
+    },
+    //关闭modal回调
+    closeModal() {
+      this.tableOps.modalOps.visible = false;
+      this.tableOps.modalOps.isDisabled = false;
+      this.addMenuModalOps.isDisabled = false;
+      this.addMenuModalOps.visible = false;
     },
     //修改菜单信息
     updateMenuInfo() {
+      this.tableOps.modalOps.confirmLoading = true;
       //区分一下是子菜单还是父菜单，父菜单没有url这个属性
       if (this.tableOps.modalOps.inputValue.url != undefined) {
         this.$http.post(Api.updateSubMenu, this.tableOps.modalOps.inputValue)
             .then(resp => {
+              this.tableOps.modalOps.confirmLoading = false;
               this.tableOps.modalOps.visible = false;
               this.tableOps.modalOps.inputValue = {};
               this.$notification.success({message: resp.data.message});
@@ -165,12 +223,35 @@ export default {
       }
       this.$http.post(Api.updateParentMenu, this.tableOps.modalOps.inputValue)
           .then(resp => {
+            this.tableOps.modalOps.confirmLoading = false;
             this.tableOps.modalOps.visible = false;
             this.tableOps.modalOps.inputValue = {};
             this.$notification.success({message: resp.data.message});
           })
           .catch(err => err)
           .finally(f => this.reload)
+    },
+    //显示添加菜单的模态框
+    showAddMenuModal(record) {
+      if (record.url == undefined) this.addMenuModalOps.isDisabled = true;
+      this.addMenuModalOps.inputValue = record;
+      this.addMenuModalOps.visible = true;
+    },
+    //添加菜单
+    addMenu() {
+      //区分下是父菜单还是子菜单
+      //父菜单
+      if (this.addMenuModalOps.inputValue.url == undefined) {
+        this.$http.post(Api.addParentMenu, this.addMenuModalOps.inputValue)
+            .then(resp => {
+              console.log("父菜单添加回调=>", resp);
+            })
+      } else {
+        this.$http.post(Api.addSubMenu, this.addMenuModalOps.inputValue)
+            .then(resp => {
+              console.log("子菜单添加回调=>", resp);
+            })
+      }
     }
   },
   mounted() {
