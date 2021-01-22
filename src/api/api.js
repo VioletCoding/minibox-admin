@@ -29,6 +29,10 @@ const updateSubMenu = "admin/updateSubMenu";
 const addParentMenu = "admin/addParentMenu";
 //添加子菜单
 const addSubMenu = "admin/addSubMenu";
+//删除父菜单
+const delParentMenu = "admin/delParentMenu";
+//删除子菜单
+const delSubMenu = "admin/delSubMenu";
 
 export default {
     auth,
@@ -45,5 +49,7 @@ export default {
     updateParentMenu,
     updateSubMenu,
     addParentMenu,
-    addSubMenu
+    addSubMenu,
+    delParentMenu,
+    delSubMenu
 }

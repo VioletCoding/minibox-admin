@@ -10,6 +10,8 @@
       <a-input type="text" style="width: 300px" v-model="searchOps.menuName"/>
 
       <a-button type="primary" style="margin-left: 20px" @click="searchMenu">查询</a-button>
+
+      <a-button style="margin-left: 20px" @click="showAddMenuModal">添加</a-button>
     </div>
     <!--搜索区end-->
 
@@ -58,8 +60,6 @@
             </a-form-model>
           </a-modal>
 
-          <a-button style="margin-left: 20px" @click="showAddMenuModal(record)">添加</a-button>
-
           <a-modal :visible="addMenuModalOps.visible"
                    @cancel="closeModal"
                    @ok="addMenu"
@@ -82,14 +82,21 @@
               </a-form-model-item>
 
               <a-form-model-item label="菜单路径">
-
                 <a-input v-model="addMenuModalOps.inputValue.url" :disabled="addMenuModalOps.isDisabled"/>
+              </a-form-model-item>
+
+              <a-form-model-item label="添加子菜单">
+                <a-checkbox @change="allowSubMenu"/>
+              </a-form-model-item>
+
+              <a-form-model-item v-show="addMenuModalOps.isCheckBoxChecked" label="父菜单ID">
+                <a-input v-model="addMenuModalOps.inputValue.parentMenuId"/>
               </a-form-model-item>
 
             </a-form-model>
           </a-modal>
 
-          <a-popconfirm title="确定要删除这个菜单吗？">
+          <a-popconfirm title="确定要删除这个菜单吗？" @confirm="deleteMenu(record)">
             <a-button type="danger" style="margin-left: 20px;">删除</a-button>
           </a-popconfirm>
         </template>
@@ -163,6 +170,7 @@ export default {
         visible: false,
         confirmLoading: false,
         isDisabled: false,
+        isCheckBoxChecked: false,
         //模态框里的输入框，记录那一行record的值
         inputValue: {}
       },
@@ -186,7 +194,6 @@ export default {
       this.tableOps.isLoading = true;
       this.$http.get(Api.getMenu, {params: {id: this.searchOps.id, menuName: this.searchOps.menuName}})
           .then(resp => {
-            console.log("搜索菜单=>", resp);
             this.menuList = resp.data.data;
             this.tableOps.isLoading = false;
           })
@@ -237,20 +244,37 @@ export default {
       this.addMenuModalOps.inputValue = record;
       this.addMenuModalOps.visible = true;
     },
+    //判断是否添加子菜单
+    allowSubMenu(e) {
+      this.addMenuModalOps.isCheckBoxChecked = e.target.checked;
+      if (this.addMenuModalOps.isCheckBoxChecked) this.addMenuModalOps.isDisabled = false;
+    },
     //添加菜单
     addMenu() {
       //区分下是父菜单还是子菜单
       //父菜单
-      if (this.addMenuModalOps.inputValue.url == undefined) {
+      if (!this.addMenuModalOps.isCheckBoxChecked) {
         this.$http.post(Api.addParentMenu, this.addMenuModalOps.inputValue)
-            .then(resp => {
-              console.log("父菜单添加回调=>", resp);
-            })
+            .then(resp => this.$notification.success({message: resp.data.message}))
+            .catch(err => err)
       } else {
         this.$http.post(Api.addSubMenu, this.addMenuModalOps.inputValue)
-            .then(resp => {
-              console.log("子菜单添加回调=>", resp);
-            })
+            .then(resp => this.$notification.success({message: resp.data.message}))
+            .catch(err => err)
+      }
+      this.addMenuModalOps.visible = false;
+    },
+    //删除菜单
+    deleteMenu(record) {
+      //父菜单
+      if (record.url == undefined) {
+        this.$http.get(Api.delParentMenu, {params: {id: record.id}})
+            .then(resp => this.$notification.success({message: resp.data.message}))
+            .catch(err => err)
+      } else {
+        this.$http.get(Api.delSubMenu, {params: {id: record.id}})
+            .then(resp => this.$notification.success({message: resp.data.message}))
+            .catch(err => err)
       }
     }
   },
