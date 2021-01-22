@@ -39,6 +39,12 @@ const routes = [
                 path: "menuList",
                 name: "MyAdminMenuList",
                 component: () => import("@/views/admin/index/main/menu/MyMenuList")
+            },
+            {
+                //游戏列表
+                path: "gameList",
+                name: "MyAdminGameList",
+                component: () => import("@/views/admin/index/main/game/MyGameList")
             }
         ]
     },

@@ -33,6 +33,8 @@ const addSubMenu = "admin/addSubMenu";
 const delParentMenu = "admin/delParentMenu";
 //删除子菜单
 const delSubMenu = "admin/delSubMenu";
+//游戏列表
+const gameList = "admin/gameList";
 
 export default {
     auth,
@@ -51,5 +53,6 @@ export default {
     addParentMenu,
     addSubMenu,
     delParentMenu,
-    delSubMenu
+    delSubMenu,
+    gameList
 }
