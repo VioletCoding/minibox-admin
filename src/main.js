@@ -10,8 +10,8 @@ Vue.use(Antd);
 /**************************Axios**************************/
 import axios from 'axios';
 import VueAxios from 'vue-axios';
-
 Vue.use(VueAxios, axios);
+
 /**************************EChars**************************/
 import ECharts from 'vue-echarts';
 
@@ -26,7 +26,6 @@ NProgress.configure({showSpinner: false, minimum: 0.2})
 Vue.config.productionTip = false;
 let infiniteScroll = require("vue-infinite-scroll");
 Vue.use(infiniteScroll);
-
 new Vue({
     router,
     render: h => h(App)
@@ -74,4 +73,3 @@ router.beforeEach((to, from, next) => {
 router.afterEach(transition => {
     NProgress.done();
 })
-

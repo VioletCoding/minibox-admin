@@ -35,6 +35,15 @@ const delParentMenu = "admin/delParentMenu";
 const delSubMenu = "admin/delSubMenu";
 //游戏列表
 const gameList = "admin/gameList";
+//上传
+const upload = "admin/upload";
+//更新游戏信息
+const updateGameInfo = "admin/updateGameInfo";
+//新增游戏
+const addGame = "admin/addGame";
+//删除游戏
+const delGame = "admin/delGame";
+
 
 export default {
     auth,
@@ -54,5 +63,9 @@ export default {
     addSubMenu,
     delParentMenu,
     delSubMenu,
-    gameList
+    gameList,
+    upload,
+    updateGameInfo,
+    addGame,
+    delGame
 }
