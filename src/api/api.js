@@ -4,7 +4,6 @@ const auth = "user/before";
 const loginOrReg = "user/after";
 //登出接口
 const logout = "user/logout";
-
 //获取全部菜单，可选参数为id，menuName，不传返回全部
 const getMenu = "admin/allMenu";
 //获取首页的「帖子数量」「用户数量」「游戏数量」「评论数量」
@@ -43,29 +42,21 @@ const updateGameInfo = "admin/updateGameInfo";
 const addGame = "admin/addGame";
 //删除游戏
 const delGame = "admin/delGame";
+//帖子列表
+const postList = "admin/postList";
+//编辑帖子
+const modifyPost = "admin/modifyPost";
+//删除帖子
+const delPost = "admin/delPost";
 
 
 export default {
-    auth,
-    loginOrReg,
+    auth, loginOrReg, logout,
     getMenu,
-    logout,
     getCount,
-    getUserList,
-    deleteUser,
-    updateUser,
-    deleteRole,
-    addRole,
-    showRoles,
-    updateParentMenu,
-    updateSubMenu,
-    addParentMenu,
-    addSubMenu,
-    delParentMenu,
-    delSubMenu,
-    gameList,
-    upload,
-    updateGameInfo,
-    addGame,
-    delGame
+    getUserList, deleteUser, updateUser,
+    deleteRole, addRole, showRoles,
+    updateParentMenu, updateSubMenu, addParentMenu, addSubMenu, delParentMenu, delSubMenu,
+    gameList, upload, updateGameInfo, addGame, delGame,
+    postList, modifyPost, delPost
 }

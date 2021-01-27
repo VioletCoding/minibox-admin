@@ -96,7 +96,7 @@
       <div class="m-right">
         <!--内容展示区-->
         <div class="m-contain">
-          <div>
+          <div style="background-color: white;padding: 20px">
             <router-view></router-view>
           </div>
         </div>

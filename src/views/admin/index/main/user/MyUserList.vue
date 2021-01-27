@@ -1,136 +1,142 @@
 <!--用户列表-->
 <template>
   <div>
-    <!--搜索表单区-->
-    <div style="background-color: white;padding: 20px">
+    <div v-if="loading">
+      <!--搜索表单区-->
       <div>
-        <span>用户标识：</span>
-        <a-input class="inputField"
-                 placeholder="请输入用户id"
-                 v-model="queryUserParams.id"/>
-        <span>用户昵称：</span>
-        <a-input class="inputField"
-                 placeholder="请输入用户昵称"
-                 v-model="queryUserParams.nickname"/>
-      </div>
+        <div>
+          <span>用户标识：</span>
+          <a-input class="inputField"
+                   placeholder="请输入用户id"
+                   v-model="queryUserParams.id"/>
+          <span>用户昵称：</span>
+          <a-input class="inputField"
+                   placeholder="请输入用户昵称"
+                   v-model="queryUserParams.nickname"/>
+        </div>
 
-      <div style="margin-top: 20px;display: inline-block">
-        <span>用户状态：</span>
-        <a-radio-group default-value="NORMAL"
-                       style="margin-right: 50px"
-                       button-style="solid"
-                       @change="stateRadioChange">
-          <a-radio-button value="NORMAL">正常</a-radio-button>
-          <a-radio-button value="INVALID">非法</a-radio-button>
-          <a-radio-button value="BANNED">封禁</a-radio-button>
-        </a-radio-group>
-      </div>
+        <div style="margin-top: 20px;display: inline-block">
+          <span>用户状态：</span>
+          <a-radio-group default-value="NORMAL"
+                         style="margin-right: 50px"
+                         button-style="solid"
+                         @change="stateRadioChange">
+            <a-radio-button value="NORMAL">正常</a-radio-button>
+            <a-radio-button value="INVALID">非法</a-radio-button>
+            <a-radio-button value="BANNED">封禁</a-radio-button>
+          </a-radio-group>
+        </div>
 
-      <div style="display: inline-block">
-        <a-button type="primary" @click="queryUser">查询</a-button>
-      </div>
+        <div style="display: inline-block">
+          <a-button type="primary" @click="queryUser">查询</a-button>
+        </div>
 
-    </div>
-    <!--搜索表单区end-->
-    <!--列表展示区-->
-    <div style="margin-top: 20px">
-      <a-table :columns="columns"
-               :data-source="userList"
-               rowKey="id"
-               style="background-color: white">
-        <!--用户角色TAG-->
-        <template #roleList="roles,record">
-          <a-tooltip>
-            <template #title>
-              点击标签可以删除该用户的管理员角色
-            </template>
-            <a-popconfirm
-                title="确定要删除这个用户的管理员角色吗?"
-                ok-text="确定"
-                cancel-text="取消"
-                @confirm="removeAdminRole(record)"
-                @cancel="()=>{return false}">
-              <a-tag v-for="(role,roleIndex) in roles"
-                     :key="roleIndex + 'role' "
-                     :color=" role.id ==10001? 'red' : 'cyan' ">
-                {{ role.name }}
-              </a-tag>
+      </div>
+      <!--搜索表单区end-->
+      <!--列表展示区-->
+      <div style="margin-top: 20px">
+        <a-table :columns="columns"
+                 :data-source="userList"
+                 rowKey="id"
+                 style="background-color: white">
+          <!--用户角色TAG-->
+          <template #roleList="roles,record">
+            <a-tooltip>
+              <template #title>
+                点击标签可以删除该用户的管理员角色
+              </template>
+              <a-popconfirm
+                  title="确定要删除这个用户的管理员角色吗?"
+                  ok-text="确定"
+                  cancel-text="取消"
+                  @confirm="removeAdminRole(record)"
+                  @cancel="()=>{return false}">
+                <a-tag v-for="(role,roleIndex) in roles"
+                       :key="roleIndex + 'role' "
+                       :color=" role.id ==10001? 'red' : 'cyan' ">
+                  {{ role.name }}
+                </a-tag>
+              </a-popconfirm>
+            </a-tooltip>
+          </template>
+          <!--用户角色TAG end-->
+
+          <!--修改用户信息 编辑区-->
+          <template #action="text,record,index">
+
+            <a-button type="primary"
+                      style="margin-right: 20px"
+                      @click="modalHandlerUpdate(record)">
+              修改
+            </a-button>
+
+            <a-modal :title=" `修改 ${modalOperation.singleUserUpdate.nickname} 的个人信息` "
+                     :visible="modalOperation.visible"
+                     :confirm-loading="modalOperation.confirmLoading"
+                     @cancel="modalOperation.visible=false"
+                     cancel-text="取消"
+                     ok-text="确定"
+                     @ok="modalHandlerOk"
+                     :destroyOnClose="true"
+                     :mask="false">
+              <a-form-model :label-col="{span:4}"
+                            :wrapper-col="{span:18}">
+                <a-form-model-item label="用户昵称">
+                  <a-input v-model="modalOperation.singleUserUpdate.nickname"/>
+                </a-form-model-item>
+
+                <a-form-model-item label="用户状态">
+                  <a-radio-group :default-value="modalOperation.singleUserUpdate.userState"
+                                 button-style="solid"
+                                 @change="radioChange">
+                    <a-radio-button value="NORMAL">正常</a-radio-button>
+                    <a-radio-button value="INVALID">非法</a-radio-button>
+                    <a-radio-button value="BANNED">封禁</a-radio-button>
+                  </a-radio-group>
+                </a-form-model-item>
+
+                <a-form-model-item label="个人简介">
+                  <a-input v-model="modalOperation.singleUserUpdate.description"/>
+                </a-form-model-item>
+
+              </a-form-model>
+            </a-modal>
+            <!--编辑区end-->
+
+            <!--添加管理员按钮以及二次确认-->
+            <a-popconfirm title="确定要添加管理员给这位用户吗?"
+                          ok-text="是"
+                          cancel-text="否"
+                          @confirm="giveAdminRole(record)">
+              <a-button style="margin-right: 20px">添加管理员</a-button>
             </a-popconfirm>
-          </a-tooltip>
-        </template>
-        <!--用户角色TAG end-->
+            <!--添加管理员按钮以及二次确认end-->
 
-        <!--修改用户信息 编辑区-->
-        <template #action="text,record,index">
-
-          <a-button type="primary"
-                    style="margin-right: 20px"
-                    @click="modalHandlerUpdate(record)">
-            修改
-          </a-button>
-
-          <a-modal :title=" `修改 ${modalOperation.singleUserUpdate.nickname} 的个人信息` "
-                   :visible="modalOperation.visible"
-                   :confirm-loading="modalOperation.confirmLoading"
-                   @cancel="modalOperation.visible=false"
-                   cancel-text="取消"
-                   ok-text="确定"
-                   @ok="modalHandlerOk"
-                   :destroyOnClose="true"
-                   :mask="false">
-            <a-form-model :label-col="{span:4}"
-                          :wrapper-col="{span:18}">
-              <a-form-model-item label="用户昵称">
-                <a-input v-model="modalOperation.singleUserUpdate.nickname"/>
-              </a-form-model-item>
-
-              <a-form-model-item label="用户状态">
-                <a-radio-group :default-value="modalOperation.singleUserUpdate.userState"
-                               button-style="solid"
-                               @change="radioChange">
-                  <a-radio-button value="NORMAL">正常</a-radio-button>
-                  <a-radio-button value="INVALID">非法</a-radio-button>
-                  <a-radio-button value="BANNED">封禁</a-radio-button>
-                </a-radio-group>
-              </a-form-model-item>
-
-              <a-form-model-item label="个人简介">
-                <a-input v-model="modalOperation.singleUserUpdate.description"/>
-              </a-form-model-item>
-
-            </a-form-model>
-          </a-modal>
-          <!--编辑区end-->
-
-          <!--添加管理员按钮以及二次确认-->
-          <a-popconfirm title="确定要添加管理员给这位用户吗?"
-                        ok-text="是"
-                        cancel-text="否"
-                        @confirm="giveAdminRole(record)">
-            <a-button style="margin-right: 20px">添加管理员</a-button>
-          </a-popconfirm>
-          <!--添加管理员按钮以及二次确认end-->
-
-          <!--删除用户-->
-          <a-popconfirm
-              title="确定要删除这个用户吗?"
-              ok-text="是"
-              cancel-text="否"
-              @confirm="confirmDeleteUser(record.id)">
-            <a-button type="danger" style="margin-right: 20px">删除</a-button>
-          </a-popconfirm>
-          <!--删除用户end-->
-        </template>
-        <!--修改用户信息 编辑区 end-->
-      </a-table>
+            <!--删除用户-->
+            <a-popconfirm
+                title="确定要删除这个用户吗?"
+                ok-text="是"
+                cancel-text="否"
+                @confirm="confirmDeleteUser(record.id)">
+              <a-button type="danger" style="margin-right: 20px">删除</a-button>
+            </a-popconfirm>
+            <!--删除用户end-->
+          </template>
+          <!--修改用户信息 编辑区 end-->
+        </a-table>
+      </div>
+      <!--列表展示区end-->
     </div>
-    <!--列表展示区end-->
+    <div v-else>
+      <MyLoading/>
+    </div>
   </div>
 </template>
 
 <script>
 import Api from "@/api/api";
 import Util from "@/api/util";
+import MyLoading from "@/component/MyLoading";
 //table 列
 const columns = [
   {
@@ -177,9 +183,11 @@ const columns = [
 ];
 export default {
   name: "MyUserList",
+  components: {MyLoading},
   data() {
     return {
       columns,
+      loading: false,
       //用户信息
       userList: [],
       //对话框属性
@@ -200,7 +208,10 @@ export default {
   methods: {
     //获取用户列表
     getUserList() {
-      this.$http.post(Api.getUserList).then(resp => this.userList = resp.data.data).catch(err => err)
+      this.$http.post(Api.getUserList)
+          .then(resp => this.userList = resp.data.data)
+          .catch(err => err)
+          .finally(() => this.loading = true)
     },
     //确定删除用户
     confirmDeleteUser(id) {

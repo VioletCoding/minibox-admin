@@ -1,49 +1,53 @@
 <!--角色列表管理-->
 <template>
-  <div style="background-color: white;padding: 20px">
+  <div>
+    <div v-if="loading">
+      <!--搜索区-->
+      <div>
+        <span>角色ID：</span>
+        <a-input type="text" placeholder="请输入角色id" v-model="searchOps.id" style="width: 400px"/>
 
-    <!--搜索区-->
-    <div>
-      <span>角色ID：</span>
-      <a-input type="text" placeholder="请输入角色id" v-model="searchOps.id" style="width: 400px"/>
+        <span style="margin-left: 20px">角色名：</span>
+        <a-input type="text" placeholder="请输入角色名" v-model="searchOps.name" style="width: 400px;"/>
 
-      <span style="margin-left: 20px">角色名：</span>
-      <a-input type="text" placeholder="请输入角色名" v-model="searchOps.name" style="width: 400px;"/>
+        <span style="margin-left: 20px">状态：</span>
+        <a-select default-value="0" style="width: 80px" @change="selectChange">
+          <a-select-option value="0">可用</a-select-option>
+          <a-select-option value="1">不可用</a-select-option>
+        </a-select>
 
-      <span style="margin-left: 20px">状态：</span>
-      <a-select default-value="0" style="width: 80px" @change="selectChange">
-        <a-select-option value="0">可用</a-select-option>
-        <a-select-option value="1">不可用</a-select-option>
-      </a-select>
-
-      <span style="margin-left: 20px">
+        <span style="margin-left: 20px">
         <a-button type="primary" @click="queryRoleList">查询</a-button>
       </span>
+      </div>
+      <!--搜索区end-->
+
+      <!-- Table -->
+      <div style="margin-top: 20px">
+        <a-table :columns="columns" :data-source="roleList" :loading="tableOps.isLoading">
+
+          <template #state="text,record">
+            <a-tooltip>
+              <template #title>0代表可用，1代表不可用</template>
+              {{ record.state }}
+            </a-tooltip>
+          </template>
+
+          <template #action="text,record">
+          </template>
+        </a-table>
+      </div>
+      <!-- Table end-->
     </div>
-    <!--搜索区end-->
-
-    <!-- Table -->
-    <div style="margin-top: 20px">
-      <a-table :columns="columns" :data-source="roleList" :loading="tableOps.isLoading">
-
-        <template #state="text,record">
-          <a-tooltip>
-            <template #title>0代表可用，1代表不可用</template>
-            {{ record.state }}
-          </a-tooltip>
-        </template>
-
-        <template #action="text,record">
-        </template>
-      </a-table>
+    <div v-else>
+      <MyLoading/>
     </div>
-    <!-- Table end-->
-
   </div>
 </template>
 
 <script>
 import Api from "@/api/api";
+import MyLoading from "@/component/MyLoading";
 
 const columns = [
   {
@@ -70,8 +74,10 @@ const columns = [
 ]
 export default {
   name: "MyRoleList",
+  components: {MyLoading},
   data() {
     return {
+      loading: false,
       columns,
       //可用的搜索条件
       searchOps: {
@@ -94,6 +100,7 @@ export default {
       this.$http.post(Api.showRoles, this.searchOps).then(resp => {
             this.roleList = resp.data.data;
             this.tableOps.isLoading = false;
+            this.loading = true;
           }
       ).catch(err => err);
     },
