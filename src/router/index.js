@@ -51,6 +51,12 @@ const routes = [
                 path: "postList",
                 name: "MyAdminPostList",
                 component: () => import("@/views/admin/index/main/post/MyPostList")
+            },
+            {
+                //版块列表
+                path: "blockList",
+                name: "MyAdminBlockList",
+                component: () => import("@/views/admin/index/main/block/MyBlockList")
             }
         ]
     },

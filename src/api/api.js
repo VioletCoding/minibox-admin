@@ -20,18 +20,12 @@ const deleteRole = "admin/deleteRole";
 const addRole = "admin/addRole";
 //显示角色列表
 const showRoles = "admin/showRoles";
-//修改父菜单信息
-const updateParentMenu = "admin/updateParentMenu";
-//修改子菜单信息
-const updateSubMenu = "admin/updateSubMenu";
-//添加父菜单
-const addParentMenu = "admin/addParentMenu";
-//添加子菜单
-const addSubMenu = "admin/addSubMenu";
-//删除父菜单
-const delParentMenu = "admin/delParentMenu";
-//删除子菜单
-const delSubMenu = "admin/delSubMenu";
+//修改菜单信息
+const updateMenu = "admin/updateMenu";
+//添加菜单
+const addMenu = "admin/addMenu";
+//删除菜单
+const delMenu = "admin/delMenu";
 //游戏列表
 const gameList = "admin/gameList";
 //上传
@@ -48,15 +42,22 @@ const postList = "admin/postList";
 const modifyPost = "admin/modifyPost";
 //删除帖子
 const delPost = "admin/delPost";
-
+//获取版块信息
+const getBlock = "admin/getBlock";
+//更新版块信息
+const updateBlock = "admin/updateBlock";
+//删除版块信息
+const delBlock = "admin/delBlock";
+//添加版块
+const addBlock = "admin/addBlock";
 
 export default {
     auth, loginOrReg, logout,
-    getMenu,
+    getMenu, updateMenu, addMenu, delMenu,
     getCount,
     getUserList, deleteUser, updateUser,
     deleteRole, addRole, showRoles,
-    updateParentMenu, updateSubMenu, addParentMenu, addSubMenu, delParentMenu, delSubMenu,
     gameList, upload, updateGameInfo, addGame, delGame,
-    postList, modifyPost, delPost
+    postList, modifyPost, delPost,
+    getBlock, updateBlock, delBlock, addBlock
 }

@@ -4,16 +4,20 @@
     <div v-if="dataFlag">
       <!--搜索区-->
       <div>
-        <span>游戏ID：</span>
-        <a-input style="width: 300px" v-model="searchOps.id"/>
-        <span style="margin-left: 20px">游戏名称：</span>
-        <a-input style="width: 300px" v-model="searchOps.name"/>
-        <a-button type="primary"
-                  style="margin-left: 20px" @click="searchGame">搜索
-        </a-button>
-        <a-button type="primary"
-                  style="margin-left: 20px" @click="addGameOps.visiale=true">添加
-        </a-button>
+        <a-space>
+          <span>游戏ID:</span>
+          <a-input style="width: 300px"
+                   v-model="searchOps.id"/>
+          <span>游戏名称:</span>
+          <a-input style="width: 300px"
+                   v-model="searchOps.name"/>
+          <a-button type="primary"
+                    @click="searchGame">搜索
+          </a-button>
+          <a-button type="primary"
+                    @click="addGameOps.visiale=true">添加
+          </a-button>
+        </a-space>
       </div>
       <!--搜索区end-->
       <!--table-->
@@ -32,7 +36,8 @@
             <span>
                 <a-button type="primary"
                           @click="edit(record)">修改</a-button>
-              <a-popconfirm title="你确定要删除这个游戏吗？" @confirm="delGame(record.id)">
+              <a-popconfirm title="你确定要删除这个游戏吗？"
+                            @confirm="delGame(record.id)">
                 <a-button type="danger"
                           style="margin-left: 20px;">删除</a-button>
                 </a-popconfirm>
@@ -48,7 +53,7 @@
                   :visible="drawerOps.visible"
                   @close="()=>this.drawerOps.visible=false"
                   :destroyOnClose="true">
-
+<!--This is a bug , need to fix , about upload-->
           <a-form-model :label-col="{span:4}"
                         :wrapper-col="{span:14}">
             <a-form-model-item label="游戏名称">
@@ -92,7 +97,7 @@
                     :file-list="drawerOps.uploadOps.fileList"
                     name="multipartFile"
                     :headers="drawerOps.uploadOps.headers"
-                    @preview="handlePreview"
+                    @preview="preview"
                     @change="handleChange">
 
                   <div v-if="drawerOps.uploadOps.fileList.length < 1">
@@ -128,15 +133,20 @@
                         :wrapper-col="{span:14}">
 
             <a-form-model-item label="游戏名称">
-              <a-input v-model="addGameOps.input.name" :maxLength="40"/>
+              <a-input v-model="addGameOps.input.name"
+                       :maxLength="40"/>
             </a-form-model-item>
 
             <a-form-model-item label="游戏现价">
-              <a-input-number :min="0.00" :step="0.01" v-model="addGameOps.input.price"/>
+              <a-input-number :min="0.00"
+                              :step="0.01"
+                              v-model="addGameOps.input.price"/>
             </a-form-model-item>
 
             <a-form-model-item label="游戏原价">
-              <a-input-number :min="0.00" :step="0.01" v-model="addGameOps.input.originPrice"/>
+              <a-input-number :min="0.00"
+                              :step="0.01"
+                              v-model="addGameOps.input.originPrice"/>
             </a-form-model-item>
 
             <a-form-model-item label="发布时间">
@@ -144,26 +154,30 @@
             </a-form-model-item>
 
             <a-form-model-item label="开发商">
-              <a-input v-model="addGameOps.input.developer" :maxLength="255"/>
+              <a-input v-model="addGameOps.input.developer"
+                       :maxLength="255"/>
             </a-form-model-item>
 
             <a-form-model-item label="发行商">
-              <a-input v-model="addGameOps.input.publisher" :maxLength="255"/>
+              <a-input v-model="addGameOps.input.publisher"
+                       :maxLength="255"/>
             </a-form-model-item>
 
             <a-form-model-item label="游戏描述">
-              <a-textarea v-model="addGameOps.input.description" :auto-size="true" :allowClear="true"
+              <a-textarea v-model="addGameOps.input.description"
+                          :auto-size="true"
+                          :allowClear="true"
                           :maxLength="4000"/>
             </a-form-model-item>
 
             <a-form-model-item label="游戏封面图">
               <div class="clearfix">
                 <a-upload
-                    :action="addGameOps.uploadOps.action"
+                    :action="drawerOps.uploadOps.action"
                     list-type="picture-card"
                     :file-list="addGameOps.uploadOps.fileList"
                     name="multipartFile"
-                    :headers="addGameOps.uploadOps.headers"
+                    :headers="drawerOps.uploadOps.headers"
                     @preview="addGamehandlePreview"
                     @change="addGamehandleChange">
 
@@ -184,7 +198,9 @@
             </a-form-model-item>
 
             <a-form-model-item :wrapper-col="{span:14,offset:4}">
-              <a-button type="primary" @click="addGameOnDraweOk">确定</a-button>
+              <a-button type="primary"
+                        @click="addGameOnDraweOk">确定
+              </a-button>
             </a-form-model-item>
 
           </a-form-model>
@@ -274,7 +290,7 @@ const columns = [
   }
 ];
 
-//图片预览
+//获取图片的base64
 function getBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -289,7 +305,9 @@ export default {
   components: {MyLoading},
   data() {
     return {
+      //table 列
       columns,
+      //table 数据源
       dataSource: [],
       //搜索可用条件
       searchOps: {
@@ -307,16 +325,13 @@ export default {
           releaseTime: undefined,
           developer: "",
           publisher: "",
-          description: ""
+          description: "",
+          coverImg: ""
         },
         uploadOps: {
           previewImage: "",
           previewVisible: false,
-          action: "http://192.168.0.105:20001/" + Api.upload,
-          fileList: [],
-          headers: {
-            accessToken: util.getLoginUserToken()
-          }
+          fileList: []
         }
       },
       //修改游戏抽屉可选属性
@@ -342,7 +357,7 @@ export default {
     getGameList() {
       this.$http.post(Api.gameList)
           .then(resp => this.dataSource = resp.data.data)
-          .catch(err => err)
+          .catch(err => this.$message.error(util.errMessage(err)))
           .finally(f => this.dataFlag = true)
     },
     //点击 table 每行的修改按钮时
@@ -354,12 +369,8 @@ export default {
     handleCancel() {
       this.drawerOps.uploadOps.previewVisible = false;
     },
-    //点开预览图
-    async handlePreview(file) {
-      if (!file.url && !file.preview) {
-        file.preview = await getBase64(file.originFileObj);
-      }
-      this.drawerOps.uploadOps.previewImage = file.url || file.preview;
+    preview(file) {
+      this.drawerOps.uploadOps.preview.previewImage = file.response.data;
       this.drawerOps.uploadOps.previewVisible = true;
     },
     //上传的文件列表发生改变时
@@ -377,20 +388,19 @@ export default {
             this.drawerOps.visible = false;
             this.getGameList();
           })
-          .catch(err => err)
+          .catch(err => this.$message.error(util.errMessage(err)))
     },
     //搜索游戏
     searchGame() {
       this.$http.post(Api.gameList, this.searchOps)
           .then(resp => this.dataSource = resp.data.data)
-          .catch(err => err);
+          .catch(err => this.$message.error(util.errMessage(err)));
     },
     //添加游戏文件列表发生改变时
     addGamehandleChange({fileList}) {
       this.addGameOps.uploadOps.fileList = fileList;
-      if (fileList[0].status == "done") {
+      if (fileList[0].status == "done")
         this.addGameOps.input.coverImg = fileList[0].response.data;
-      }
     },
     //添加游戏预览图片
     async addGamehandlePreview(file) {
@@ -408,7 +418,7 @@ export default {
             this.addGameOps.visiale = false;
             this.getGameList();
           })
-          .catch(err => err)
+          .catch(err => this.$message.error(util.errMessage(err)));
     },
     //删除游戏
     delGame(id) {
@@ -417,7 +427,7 @@ export default {
             this.$notification.success({message: resp.data.message});
             this.getGameList();
           })
-          .catch(err => err)
+          .catch(err => this.$message.error(util.errMessage(err)))
     }
   },
   mounted() {
@@ -425,7 +435,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-
-</style>

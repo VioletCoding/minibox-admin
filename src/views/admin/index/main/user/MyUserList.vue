@@ -1,7 +1,7 @@
 <!--用户列表-->
 <template>
   <div>
-    <div v-if="loading">
+    <div v-if="dataFlag">
       <!--搜索表单区-->
       <div>
         <div>
@@ -28,7 +28,9 @@
         </div>
 
         <div style="display: inline-block">
-          <a-button type="primary" @click="queryUser">查询</a-button>
+          <a-button type="primary"
+                    @click="queryUser">查询
+          </a-button>
         </div>
 
       </div>
@@ -118,7 +120,9 @@
                 ok-text="是"
                 cancel-text="否"
                 @confirm="confirmDeleteUser(record.id)">
-              <a-button type="danger" style="margin-right: 20px">删除</a-button>
+              <a-button type="danger"
+                        style="margin-right: 20px">删除
+              </a-button>
             </a-popconfirm>
             <!--删除用户end-->
           </template>
@@ -137,6 +141,7 @@
 import Api from "@/api/api";
 import Util from "@/api/util";
 import MyLoading from "@/component/MyLoading";
+import util from "@/api/util";
 //table 列
 const columns = [
   {
@@ -187,7 +192,7 @@ export default {
   data() {
     return {
       columns,
-      loading: false,
+      dataFlag: false,
       //用户信息
       userList: [],
       //对话框属性
@@ -210,8 +215,8 @@ export default {
     getUserList() {
       this.$http.post(Api.getUserList)
           .then(resp => this.userList = resp.data.data)
-          .catch(err => err)
-          .finally(() => this.loading = true)
+          .catch(err => this.$message.error(util.errMessage(err)))
+          .finally(() => this.dataFlag = true)
     },
     //确定删除用户
     confirmDeleteUser(id) {
@@ -222,7 +227,7 @@ export default {
             this.$message.success(resp.data.message);
             this.getUserList();
           })
-          .catch(err => this.$message.error(err.response.data.message == "" ? "服务器开小差了" : err.response.data.message))
+          .catch(err => this.$message.error(util.errMessage(err)))
     },
     //点击修改按钮
     modalHandlerUpdate(record) {
@@ -234,12 +239,12 @@ export default {
       this.modalOperation.confirmLoading = true;
       this.$http.post(Api.updateUser, this.modalOperation.singleUserUpdate)
           .then(resp => {
-            this.$message.success("修改成功");
+            this.$message.success(resp.data.message);
             this.modalOperation.confirmLoading = false;
             this.modalOperation.visible = false;
           })
           .catch(err => {
-            this.$message.error("修改失败 " + err.response.data.message);
+            this.$message.error(util.errMessage(err));
             this.modalOperation.confirmLoading = false;
             this.modalOperation.visible = false;
           })
@@ -259,7 +264,7 @@ export default {
         nickname: this.queryUserParams.nickname,
         userState: this.queryUserParams.userState
       }).then(resp => this.userList = resp.data.data)
-          .catch(err => err);
+          .catch(err => this.$message.error(util.errMessage(err)));
     },
     //删除管理员角色，无法删除用户角色，删除用户角色就相当于这个用户被删除了
     removeAdminRole(record) {
@@ -276,9 +281,11 @@ export default {
             if (resp.data.code == 200) {
               this.$notification["success"]({message: "已移除该用户的管理员身份"});
               this.getUserList();
-            } else return this.$notification["warning"]({message: resp.data.message});
+            } else {
+              return this.$notification["warning"]({message: resp.data.message});
+            }
           })
-          .catch(err => err)
+          .catch(err => this.$message.error(util.errMessage(err)))
     },
     //添加管理员角色
     giveAdminRole(record) {
@@ -289,7 +296,7 @@ export default {
               return this.$notification["success"]({message: resp.data.message});
             } else return this.$notification["warning"]({message: resp.data.message});
           })
-          .catch(err => err)
+          .catch(err => this.$message.error(util.errMessage(err)))
     }
   },
   mounted() {

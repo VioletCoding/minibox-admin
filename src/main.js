@@ -2,7 +2,7 @@ import Vue from 'vue';
 import App from './App.vue';
 import router from './router';
 import util from "@/api/util";
-/**************************Ant**************************/
+/**************************Antd**************************/
 import Antd from 'ant-design-vue';
 import 'ant-design-vue/dist/antd.css';
 
@@ -10,6 +10,7 @@ Vue.use(Antd);
 /**************************Axios**************************/
 import axios from 'axios';
 import VueAxios from 'vue-axios';
+
 Vue.use(VueAxios, axios);
 
 /**************************EChars**************************/
@@ -31,7 +32,7 @@ new Vue({
     render: h => h(App)
 }).$mount('#app');
 
-
+//请求的地址
 axios.defaults.baseURL = "http://192.168.0.105:20001/";
 axios.defaults.timeout = 5000;
 //请求拦截器
@@ -63,7 +64,8 @@ axios.interceptors.response.use(
 
 //路由前置守卫
 router.beforeEach((to, from, next) => {
-    if (to.name != "MyAdminLogin" && !util.isLoginUserTokenExist()) next({name: "MyAdminLogin"})
+    if (to.name != "MyAdminLogin" && !util.isLoginUserTokenExist())
+        next({name: "MyAdminLogin"})
     else {
         NProgress.start();
         next();

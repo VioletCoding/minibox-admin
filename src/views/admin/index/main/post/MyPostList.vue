@@ -1,7 +1,7 @@
 <!--帖子列表-->
 <template>
   <div>
-    <div v-if="loading">
+    <div v-if="dataFlag">
       <!--搜索区-->
       <div>
         <a-space>
@@ -27,7 +27,8 @@
           <template #action="record">
             <a-space>
               <a @click="showDetail(record)">详情</a>
-              <a-popconfirm title="确定删除这个帖子吗?" @confirm="del(record.id)">
+              <a-popconfirm title="确定删除这个帖子吗?"
+                            @confirm="del(record.id)">
                 <a>删除</a>
               </a-popconfirm>
             </a-space>
@@ -106,8 +107,11 @@
             </div>
             <div v-else>
               <a-space>
-                <a-button type="primary" @click="save">保存</a-button>
-                <a-popconfirm title="确定要取消吗?" @confirm="drawerOps.editing=false">
+                <a-button type="primary"
+                          @click="save">保存
+                </a-button>
+                <a-popconfirm title="确定要取消吗?"
+                              @confirm="drawerOps.editing=false">
                   <a-button type="danger">取消</a-button>
                 </a-popconfirm>
               </a-space>
@@ -135,6 +139,7 @@
 <script>
 import Api from "@/api/api";
 import MyLoading from "@/component/MyLoading";
+import util from "@/api/util";
 
 const columns = [
   {
@@ -184,7 +189,7 @@ export default {
       //table的列
       columns,
       //是否正在加载
-      loading: false,
+      dataFlag: false,
       //table数据源
       dataSource: [],
       //搜索可选属性
@@ -218,8 +223,8 @@ export default {
     getPostList() {
       this.$http.post(Api.postList, this.searchOps)
           .then(resp => this.dataSource = resp.data.data)
-          .catch(err => err)
-          .finally(() => this.loading = true)
+          .catch(err => this.$message.error(util.errMessage(err)))
+          .finally(() => this.dataFlag = true)
     },
     //预览图片
     preview(url) {
@@ -239,7 +244,7 @@ export default {
             this.getPostList();
             this.drawerOps.editing = false;
           })
-          .catch(err => err)
+          .catch(err => this.$message.error(util.errMessage(err)))
     },
     //删除帖子
     del(id) {
@@ -249,7 +254,7 @@ export default {
             console.log(resp);
             this.getPostList();
           })
-          .catch(err => err)
+          .catch(err => this.$message.error(util.errMessage(err)))
     }
   },
   mounted() {

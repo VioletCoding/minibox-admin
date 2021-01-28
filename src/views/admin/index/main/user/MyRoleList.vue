@@ -1,30 +1,42 @@
 <!--角色列表管理-->
 <template>
   <div>
-    <div v-if="loading">
+    <div v-if="dataFlag">
       <!--搜索区-->
       <div>
         <span>角色ID：</span>
-        <a-input type="text" placeholder="请输入角色id" v-model="searchOps.id" style="width: 400px"/>
+        <a-input type="text"
+                 placeholder="请输入角色id"
+                 v-model="searchOps.id"
+                 style="width: 400px"/>
 
         <span style="margin-left: 20px">角色名：</span>
-        <a-input type="text" placeholder="请输入角色名" v-model="searchOps.name" style="width: 400px;"/>
+        <a-input type="text"
+                 placeholder="请输入角色名"
+                 v-model="searchOps.name"
+                 style="width: 400px;"/>
 
         <span style="margin-left: 20px">状态：</span>
-        <a-select default-value="0" style="width: 80px" @change="selectChange">
+        <a-select default-value="0"
+                  style="width: 80px"
+                  @change="selectChange">
           <a-select-option value="0">可用</a-select-option>
           <a-select-option value="1">不可用</a-select-option>
         </a-select>
 
         <span style="margin-left: 20px">
-        <a-button type="primary" @click="queryRoleList">查询</a-button>
+        <a-button type="primary"
+                  @click="queryRoleList">查询</a-button>
       </span>
       </div>
       <!--搜索区end-->
 
       <!-- Table -->
       <div style="margin-top: 20px">
-        <a-table :columns="columns" :data-source="roleList" :loading="tableOps.isLoading">
+        <a-table :columns="columns"
+                 row-key="id"
+                 :data-source="roleList"
+                 :loading="tableOps.isLoading">
 
           <template #state="text,record">
             <a-tooltip>
@@ -48,6 +60,7 @@
 <script>
 import Api from "@/api/api";
 import MyLoading from "@/component/MyLoading";
+import util from "@/api/util";
 
 const columns = [
   {
@@ -77,7 +90,7 @@ export default {
   components: {MyLoading},
   data() {
     return {
-      loading: false,
+      dataFlag: false,
       columns,
       //可用的搜索条件
       searchOps: {
@@ -100,13 +113,13 @@ export default {
       this.$http.post(Api.showRoles, this.searchOps).then(resp => {
             this.roleList = resp.data.data;
             this.tableOps.isLoading = false;
-            this.loading = true;
+            this.dataFlag = true;
           }
-      ).catch(err => err);
+      ).catch(err => this.$message.error(util.errMessage(err)));
     },
     //a-select的值回调
     selectChange(value) {
-      this.searchOps.state = value
+      this.searchOps.state = value;
     }
   },
   mounted() {
@@ -114,7 +127,3 @@ export default {
   }
 }
 </script>
-
-<style scoped lang="less">
-
-</style>

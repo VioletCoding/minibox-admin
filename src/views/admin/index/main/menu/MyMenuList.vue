@@ -1,18 +1,23 @@
 <!--菜单列表-->
 <template>
   <div>
-    <div v-if="loading">
+    <div v-if="dataFlag">
       <!--搜索区-->
       <div>
-        <span>菜单ID：</span>
-        <a-input type="text" style="width: 300px" v-model="searchOps.id"/>
-
-        <span style="margin-left: 20px">菜单名称：</span>
-        <a-input type="text" style="width: 300px" v-model="searchOps.menuName"/>
-
-        <a-button type="primary" style="margin-left: 20px" @click="searchMenu">查询</a-button>
-
-        <a-button style="margin-left: 20px" @click="showAddMenuModal">添加</a-button>
+        <a-space>
+          <span>菜单ID:</span>
+          <a-input type="text"
+                   style="width: 300px"
+                   v-model="searchOps.id"/>
+          <span>菜单名称:</span>
+          <a-input type="text"
+                   style="width: 300px"
+                   v-model="searchOps.menuName"/>
+          <a-button type="primary"
+                    @click="getMenuList">查询
+          </a-button>
+          <a-button @click="showAddMenuModal">添加</a-button>
+        </a-space>
       </div>
       <!--搜索区end-->
 
@@ -21,14 +26,16 @@
         <a-table :columns="columns"
                  :data-source="menuList"
                  rowKey="id"
-                 :loading="tableOps.isLoading" childrenColumnName="subMenuList">
+                 :loading="tableOps.isLoading">
           <template #icon="record">
             <a-icon :type="record"/>
             <span style="margin-left: 10px;">{{ record }}</span>
           </template>
 
           <template #action="record">
-            <a-button type="primary" @click="showModal(record)">修改</a-button>
+            <a-button type="primary"
+                      @click="showModal(record)">修改
+            </a-button>
 
             <a-modal :visible="tableOps.modalOps.visible"
                      @cancel="closeModal"
@@ -38,15 +45,18 @@
                      :destroyOnClose="true"
                      title="修改菜单信息">
 
-              <a-form-model :label-col="{span:4}" :wrapper-col="{span:14}">
+              <a-form-model :label-col="{span:4}"
+                            :wrapper-col="{span:14}">
                 <a-form-model-item label="菜单ID">
-                  <a-input v-model="tableOps.modalOps.inputValue.id" :disabled="true"/>
+                  <a-input v-model="tableOps.modalOps.inputValue.id"
+                           :disabled="true"/>
                 </a-form-model-item>
 
                 <a-form-model-item label="菜单图标">
                   <a-input v-model="tableOps.modalOps.inputValue.menuIcon">
                     <a-icon v-if="tableOps.modalOps.inputValue.menuIcon != '' "
-                            slot="prefix" :type="tableOps.modalOps.inputValue.menuIcon"/>
+                            slot="prefix"
+                            :type="tableOps.modalOps.inputValue.menuIcon"/>
                   </a-input>
                 </a-form-model-item>
 
@@ -55,7 +65,7 @@
                 </a-form-model-item>
 
                 <a-form-model-item label="菜单路径">
-                  <a-input v-model="tableOps.modalOps.inputValue.url" :disabled="tableOps.modalOps.isDisabled"/>
+                  <a-input v-model="tableOps.modalOps.inputValue.menuUrl"/>
                 </a-form-model-item>
 
               </a-form-model>
@@ -69,12 +79,14 @@
                      :destroyOnClose="true"
                      title="添加菜单">
 
-              <a-form-model :label-col="{span:4}" :wrapper-col="{span:14}">
+              <a-form-model :label-col="{span:4}"
+                            :wrapper-col="{span:14}">
 
                 <a-form-model-item label="菜单图标">
                   <a-input v-model="addMenuModalOps.inputValue.menuIcon">
                     <a-icon v-if="addMenuModalOps.inputValue.menuIcon != '' "
-                            slot="prefix" :type="addMenuModalOps.inputValue.menuIcon"/>
+                            slot="prefix"
+                            :type="addMenuModalOps.inputValue.menuIcon"/>
                   </a-input>
                 </a-form-model-item>
 
@@ -83,22 +95,17 @@
                 </a-form-model-item>
 
                 <a-form-model-item label="菜单路径">
-                  <a-input v-model="addMenuModalOps.inputValue.url" :disabled="addMenuModalOps.isDisabled"/>
-                </a-form-model-item>
-
-                <a-form-model-item label="添加子菜单">
-                  <a-checkbox @change="allowSubMenu"/>
-                </a-form-model-item>
-
-                <a-form-model-item v-show="addMenuModalOps.isCheckBoxChecked" label="父菜单ID">
-                  <a-input v-model="addMenuModalOps.inputValue.parentMenuId"/>
+                  <a-input v-model="addMenuModalOps.inputValue.menuUrl"/>
                 </a-form-model-item>
 
               </a-form-model>
             </a-modal>
 
-            <a-popconfirm title="确定要删除这个菜单吗？" @confirm="deleteMenu(record)">
-              <a-button type="danger" style="margin-left: 20px;">删除</a-button>
+            <a-popconfirm title="确定要删除这个菜单吗？"
+                          @confirm="deleteMenu(record)">
+              <a-button type="danger"
+                        style="margin-left: 20px;">删除
+              </a-button>
             </a-popconfirm>
           </template>
 
@@ -116,6 +123,7 @@
 <script>
 import Api from "@/api/api";
 import MyLoading from "@/component/MyLoading";
+import util from "@/api/util";
 //table columns
 const columns = [
   {
@@ -135,7 +143,7 @@ const columns = [
     width: "200px"
   },
   {
-    dataIndex: "url",
+    dataIndex: "menuUrl",
     title: "菜单路径",
     width: "200px"
   },
@@ -152,7 +160,7 @@ export default {
   name: "MyMenuList",
   data() {
     return {
-      loading: false,
+      dataFlag: false,
       //搜索框可用条件
       searchOps: {
         id: undefined,
@@ -167,9 +175,7 @@ export default {
           visible: false,
           confirmLoading: false,
           //模态框里的输入框，记录那一行record的值
-          inputValue: {},
-          //是否禁用输入框
-          isDisabled: false
+          inputValue: {}
         }
       },
       //添加按钮的模态框
@@ -177,7 +183,6 @@ export default {
         //模态框可操作项
         visible: false,
         confirmLoading: false,
-        isDisabled: false,
         isCheckBoxChecked: false,
         //模态框里的输入框，记录那一行record的值
         inputValue: {}
@@ -190,101 +195,54 @@ export default {
     //获取菜单信息
     getMenuList() {
       this.tableOps.isLoading = true;
-      this.$http.get(Api.getMenu)
+      this.$http.post(Api.getMenu, this.searchOps)
           .then(resp => {
             this.menuList = resp.data.data;
             this.tableOps.isLoading = false;
-            this.loading = true;
+            this.dataFlag = true;
           })
-          .catch(err => err)
-    },
-    //搜索菜单
-    searchMenu() {
-      this.tableOps.isLoading = true;
-      this.$http.get(Api.getMenu, {params: {id: this.searchOps.id, menuName: this.searchOps.menuName}})
-          .then(resp => {
-            this.menuList = resp.data.data;
-            this.tableOps.isLoading = false;
-          })
-          .catch(err => err)
+          .catch(err => this.$message.error(util.errMessage(err)))
     },
     //显示modal，并且把那一列的record存起来方便使用
     showModal(record) {
       this.tableOps.modalOps.visible = true;
       this.tableOps.modalOps.inputValue = record;
-      if (this.tableOps.modalOps.inputValue.url == undefined) this.tableOps.modalOps.isDisabled = true;
     },
     //关闭modal回调
     closeModal() {
       this.tableOps.modalOps.visible = false;
-      this.tableOps.modalOps.isDisabled = false;
-      this.addMenuModalOps.isDisabled = false;
       this.addMenuModalOps.visible = false;
     },
     //修改菜单信息
     updateMenuInfo() {
       this.tableOps.modalOps.confirmLoading = true;
-      //区分一下是子菜单还是父菜单，父菜单没有url这个属性
-      if (this.tableOps.modalOps.inputValue.url != undefined) {
-        this.$http.post(Api.updateSubMenu, this.tableOps.modalOps.inputValue)
-            .then(resp => {
-              this.tableOps.modalOps.confirmLoading = false;
-              this.tableOps.modalOps.visible = false;
-              this.tableOps.modalOps.inputValue = {};
-              this.$notification.success({message: resp.data.message});
-            })
-            .catch(err => err)
-            .finally(f => this.reload)
-        return 0;
-      }
-      this.$http.post(Api.updateParentMenu, this.tableOps.modalOps.inputValue)
+      this.$http.post(Api.updateMenu, this.tableOps.modalOps.inputValue)
           .then(resp => {
             this.tableOps.modalOps.confirmLoading = false;
             this.tableOps.modalOps.visible = false;
             this.tableOps.modalOps.inputValue = {};
             this.$notification.success({message: resp.data.message});
           })
-          .catch(err => err)
-          .finally(f => this.reload)
+          .catch(err => this.$message.error(util.errMessage(err)))
+          .finally(() => this.reload)
     },
     //显示添加菜单的模态框
     showAddMenuModal(record) {
-      if (record.url == undefined) this.addMenuModalOps.isDisabled = true;
       this.addMenuModalOps.inputValue = record;
       this.addMenuModalOps.visible = true;
     },
-    //判断是否添加子菜单
-    allowSubMenu(e) {
-      this.addMenuModalOps.isCheckBoxChecked = e.target.checked;
-      if (this.addMenuModalOps.isCheckBoxChecked) this.addMenuModalOps.isDisabled = false;
-    },
     //添加菜单
     addMenu() {
-      //区分下是父菜单还是子菜单
-      //父菜单
-      if (!this.addMenuModalOps.isCheckBoxChecked) {
-        this.$http.post(Api.addParentMenu, this.addMenuModalOps.inputValue)
-            .then(resp => this.$notification.success({message: resp.data.message}))
-            .catch(err => err)
-      } else {
-        this.$http.post(Api.addSubMenu, this.addMenuModalOps.inputValue)
-            .then(resp => this.$notification.success({message: resp.data.message}))
-            .catch(err => err)
-      }
-      this.addMenuModalOps.visible = false;
+      this.$http.post(Api.addMenu, this.addMenuModalOps.inputValue)
+          .then(resp => this.$notification.success({message: resp.data.message}))
+          .catch(err => this.$message.error(util.errMessage(err)))
+          .finally(() => this.addMenuModalOps.visible = false)
     },
     //删除菜单
     deleteMenu(record) {
-      //父菜单
-      if (record.url == undefined) {
-        this.$http.get(Api.delParentMenu, {params: {id: record.id}})
-            .then(resp => this.$notification.success({message: resp.data.message}))
-            .catch(err => err)
-      } else {
-        this.$http.get(Api.delSubMenu, {params: {id: record.id}})
-            .then(resp => this.$notification.success({message: resp.data.message}))
-            .catch(err => err)
-      }
+      this.$http.get(Api.delMenu, {params: {id: record.id}})
+          .then(resp => this.$notification.success({message: resp.data.message}))
+          .catch(err => this.$message.error(util.errMessage(err)))
     }
   },
   mounted() {
@@ -292,7 +250,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-
-</style>

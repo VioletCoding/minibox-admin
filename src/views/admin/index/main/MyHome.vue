@@ -55,9 +55,12 @@
 
 <script>
 import Api from "@/api/api";
+import MyLoading from "@/component/MyLoading";
+import util from "@/api/util";
 
 export default {
   name: "MyHome",
+  components: {MyLoading},
   data() {
     return {
       //卡片内容
@@ -85,7 +88,6 @@ export default {
       //请求数据
       this.$http.get(Api.getCount)
           .then(resp => {
-            console.log("数据=>", resp);
             let temp = resp.data.data;
             //卡片内容
             this.cardContent.push(
@@ -130,6 +132,7 @@ export default {
                 }
               }]
             });
+            myChart.hideLoading();
             //绘制图表 - 每日评论数总览
             let echartsComment = this.echarts.init(document.getElementById("bottom"));
             echartsComment.showLoading();
@@ -148,16 +151,12 @@ export default {
                 type: "line",
                 data: commentSeriesData
               }]
-            })
+            });
+            echartsComment.hideLoading();
             //游戏销量排行榜
             this.gameSalesRankings = temp.gameSalesRankings;
-            myChart.hideLoading();
-            echartsComment.hideLoading();
           })
-          .catch(err => {
-            console.error(err);
-            this.$message.error(err.response.data.message == "" ? "服务器繁忙" : err.response.data.message);
-          });
+          .catch(err => this.$message.error(util.errMessage(err)));
     }
   },
   mounted() {

@@ -1,5 +1,6 @@
 <template>
-  <div class="container" v-if="dataFlag">
+  <div class="container"
+       v-if="dataFlag">
 
     <!--顶部导航-->
     <div class="m-topBar">
@@ -11,7 +12,9 @@
 
       <!--折叠菜单按钮-->
       <div class="inline-block m-menu-btn">
-        <a-button type="primary" @click="toggleCollapsed" size="large">
+        <a-button type="primary"
+                  @click="toggleCollapsed"
+                  size="large">
           <a-icon :type="collapsed ? 'menu-unfold' : 'menu-fold'"/>
         </a-button>
       </div>
@@ -26,10 +29,12 @@
       <div class="inline-block m-top-right-item">
 
         <div class="inline-block">
-          <a-input-search placeholder="输入搜索内容" style="width: 180px"/>
+          <a-input-search placeholder="输入搜索内容"
+                          style="width: 180px"/>
         </div>
 
-        <a-dropdown overlayClassName="user-info" placement="bottomCenter">
+        <a-dropdown overlayClassName="user-info"
+                    placement="bottomCenter">
           <div class="inline-block user-info">
             <a-avatar :size="30"
                       :src="userInfo.userImg"
@@ -49,7 +54,10 @@
 
 
         <div class="inline-block m-top-right-logout">
-          <a-button type="primary" icon="logout" @click="logoutConfirm">退出登录</a-button>
+          <a-button type="primary"
+                    icon="logout"
+                    @click="logoutConfirm">退出登录
+          </a-button>
         </div>
 
       </div>
@@ -62,31 +70,17 @@
       <div class="m-menu">
         <!--菜单组-->
         <a-menu mode="inline"
-                :inline-collapsed="collapsed"
                 :defaultSelectedKeys="[this.$route.path]"
                 :selectedKeys="[this.$route.path]"
-        >
-
-          <a-menu-item key="/home" @click="showIndex">
-            <a-icon type="pie-chart"/>
-            <span>首页</span>
-          </a-menu-item>
-
-          <a-sub-menu v-for="(item,index) in menuList" :key="index + 'subMenu' ">
-
-          <span slot="title">
-            <a-icon :type="item.menuIcon"/>
-            <span>{{ item.menuName }}</span>
-          </span>
-
-            <a-menu-item v-for="subMenu in item.subMenuList"
-                         :key="subMenu.url"
-                         @click="routerPush(subMenu.url)">
-              {{ subMenu.menuName }}
+                :inline-collapsed="collapsed"
+                @select="jump">
+          <template v-for="item in menuList">
+            <a-menu-item v-if="item.menuUrl"
+                         :key="item.menuUrl">
+              <a-icon :type="item.menuIcon"/>
+              <span>{{ item.menuName }}</span>
             </a-menu-item>
-
-          </a-sub-menu>
-
+          </template>
         </a-menu>
         <!--菜单组end-->
       </div>
@@ -101,7 +95,6 @@
           </div>
         </div>
         <!--内容展示区end-->
-
       </div>
       <!--右边的内容区域end-->
 
@@ -112,6 +105,7 @@
 
 <script>
 import Api from "@/api/api";
+import util from "@/api/util";
 
 export default {
   name: "MyIndex",
@@ -128,18 +122,24 @@ export default {
     }
   },
   methods: {
+    //点击菜单时跳转路由
+    jump({item, key, selectedKeys}) {
+      this.$router.push(key)
+          .catch(err => this.$message.error("该路由暂时不可用"));
+    },
     //收缩导航菜单
     toggleCollapsed() {
       this.collapsed = !this.collapsed;
     },
     //获取菜单列表
     getMenuList() {
-      this.$http.get(Api.getMenu)
+      this.$http.post(Api.getMenu)
           .then(resp => {
             this.menuList = resp.data.data;
             this.dataFlag = true;
+            console.log(this.menuList);
           })
-          .catch(err => this.$message.error(err.response.data.message == "" ? "服务器开小差了" : err.response.data.message))
+          .catch(err => this.$message.error(util.errMessage(err)));
     },
     //获取部分用户信息
     loadUserInfo() {
@@ -159,7 +159,7 @@ export default {
                 realThis.$message.success("欢迎下次使用,再见");
                 realThis.$router.replace("/login");
               })
-              .finally(f => {
+              .finally(() => {
                 sessionStorage.clear();
                 localStorage.clear();
               })
@@ -173,17 +173,17 @@ export default {
     loadTimeTip() {
       const date = new Date();
       let tip;
-      if (date.getHours() >= 0 && date.getHours() < 12) return tip = "上午好";
-      if (date.getHours() >= 12 && date.getHours() < 18) return tip = "下午好";
-      else return tip = "晚上好";
-    },
-    //去主页，这个和子菜单分离
-    showIndex() {
-      this.$router.push("/home");
+      if (date.getHours() >= 0 && date.getHours() < 12)
+        return tip = "上午好";
+      if (date.getHours() >= 12 && date.getHours() < 18)
+        return tip = "下午好";
+      else
+        return tip = "晚上好";
     },
     //跳转到对应的菜单
     routerPush(url) {
-      if (url == "" || url == null || url == undefined) return 0;
+      if (util.isNullOrEmpty(url))
+        return 0;
       this.$router.push(url);
     }
   },

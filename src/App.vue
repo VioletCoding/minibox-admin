@@ -5,7 +5,6 @@
 </template>
 
 <script>
-//解决路由跳转闪屏问题
 export default {
   name: "App",
   //父组件中通过provide来提供变量，在子组件中通过inject来注入变量
