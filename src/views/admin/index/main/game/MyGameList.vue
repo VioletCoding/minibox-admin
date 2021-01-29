@@ -183,7 +183,7 @@
 
                   <div v-if="addGameOps.uploadOps.fileList.length < 1">
                     <a-icon type="plus"/>
-                    <div class="ant-upload-text">Upload</div>
+                    <div>Upload</div>
                   </div>
 
                 </a-upload>

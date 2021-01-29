@@ -44,7 +44,7 @@
 
           <a-menu slot="overlay">
             <a-menu-item>
-              <a href="#">
+              <a @click="()=>this.$router.push('/personal')">
                 <a-icon type="user"/>
                 个人中心
               </a>
