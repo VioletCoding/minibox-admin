@@ -5,7 +5,7 @@
 
       <div style="margin-bottom: 20px">
         <a-button type="primary"
-                  @click="getGameIdList">添加版块
+                  @click="modalOps.visible=true">添加版块
         </a-button>
         <a-modal title="添加新版块"
                  :visible="modalOps.visible"
@@ -13,23 +13,18 @@
                  :confirmLoading="modalOps.loading"
                  @ok="addBlock">
           <a-form-model :label-col="{span:5}"
-                        :wrapper-col="{span:16}"
-                        :model="modalOps.data"
-                        :rules="modalOps.rules">
-            <a-form-model-item label="版块名称"
-                               prop="name"
-                               hasFeedback>
+                        :wrapper-col="{span:16}">
+            <a-form-model-item label="版块名称">
               <a-input v-model="modalOps.data.name"
                        placeholder="请输入版块名称"/>
             </a-form-model-item>
-            <a-form-model-item label="关联游戏ID">
-              <a-auto-complete
-                  v-model="modalOps.data.gid"
-                  :data-source="gameDataSource"
-                  style="width: 150px"
-                  @blur="onBlur"
-                  backfill
-                  placeholder="点击此处选择"/>
+            <a-form-model-item label="关联游戏">
+              <a-auto-complete style="width: 250px"
+                               @blur="onBlur"
+                               backfill
+                               :data-source="gameDataSource"
+                               v-model="modalOps.data.gid"
+                               placeholder="点击此处选择"/>
             </a-form-model-item>
           </a-form-model>
         </a-modal>
@@ -43,7 +38,7 @@
             <!--修改和删除-->
             <span>
             <a-space>
-              <a @click="updateBlock(record)">修改</a>
+              <a @click="beforUpdate(record)">修改</a>
               <a-popconfirm title="确定要删除这个版块吗?"
                             @confirm="delBlock(record.id)">
                 <a>删除</a>
@@ -54,6 +49,31 @@
           </a-space>
         </template>
       </a-table>
+
+      <div>
+        <a-drawer title="更改版块信息"
+                  placement="right"
+                  width="540px"
+                  :visible="drwerOps.visible"
+                  @close="drwerOps.visible=false"
+                  :closable="false">
+          <a-form-model :label-col="{span:5}"
+                        :wrapper-col="{span:16}">
+            <a-form-model-item label="版块名称">
+              <a-input v-model="drwerOps.recordData.name"
+                       placeholder="请输入版块名称"/>
+            </a-form-model-item>
+            <a-form-model-item label="关联游戏">
+              <a-input v-model="drwerOps.recordData.gid"/>
+            </a-form-model-item>
+            <a-form-model-item label="操作">
+              <a-button type="primary" @click="updateBlock">确定</a-button>
+            </a-form-model-item>
+          </a-form-model>
+
+        </a-drawer>
+      </div>
+
     </div>
 
     <div v-else>
@@ -129,6 +149,11 @@ export default {
         },
         visible: false,
         loading: false
+      },
+      //抽屉可选属性
+      drwerOps: {
+        visible: false,
+        recordData: {}
       }
     }
   },
@@ -140,12 +165,12 @@ export default {
           .catch(err => this.$message.error(util.errMessage(err)))
           .finally(() => this.loading = false)
     },
+    //获取游戏信息
     getGameIdList() {
-      this.modalOps.visible = true;
       this.$http.post(Api.gameList)
           .then(resp => {
             let idArr = [];
-            resp.data.data.filter(item => idArr.push(item.id + ''));
+            resp.data.data.filter(item => idArr.push(item.id + "-" + item.name));
             this.gameDataSource = idArr;
           })
           .catch(err => util.errMessage(err))
@@ -161,25 +186,47 @@ export default {
     },
     //添加版块
     addBlock() {
-      this.modalOps.loading = true;
+      //先判空
+      if (this.modalOps.data.name.trim() == "")
+        return this.$message.warning("游戏名字不能为空");
+      //判断下是不是从下拉框选择的游戏
       if (this.onBlur()) {
+        this.modalOps.loading = true;
+        //分隔一下字符串，取前面的id
+        let split = this.modalOps.data.gid.split("-");
+        this.modalOps.data.gid = split[0];
         this.$http.post(Api.addBlock, this.modalOps.data)
             .then(resp => {
               if (resp.data.code == 200) {
                 this.modalOps.loading = false;
+                this.modalOps.visible = false;
                 this.$message.success(resp.data.message);
                 this.getBlockList();
-                return 0;
+              } else {
+                this.$message.warning(resp.data.message);
               }
-              this.$message.warning(resp.data.message);
             })
             .catch(err => this.$message.error(util.errMessage(err)));
       } else {
-        this.$message.warning("请从菜单中选择游戏ID,不要手动输入");
+        this.$message.warning("请从下拉框中选择游戏,不要手动输入");
       }
+    },
+    beforUpdate(record) {
+      this.drwerOps.recordData = record;
+      this.drwerOps.visible = true;
     },
     //更新版块信息
     updateBlock() {
+      this.$http.post(Api.updateBlock, this.drwerOps.recordData)
+          .then(resp => {
+            if (resp.data.code == 200) {
+              this.$message.success(resp.data.message);
+            } else {
+              this.$message.success(resp.data.message);
+            }
+          })
+          .catch(err => util.errMessage(err))
+          .finally(() => this.drwerOps.visible = false);
     },
     //删除版块
     delBlock(id) {
@@ -197,6 +244,7 @@ export default {
   },
   mounted() {
     this.getBlockList();
+    this.getGameIdList();
   }
 }
 </script>

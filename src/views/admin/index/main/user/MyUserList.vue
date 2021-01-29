@@ -139,7 +139,6 @@
 
 <script>
 import Api from "@/api/api";
-import Util from "@/api/util";
 import MyLoading from "@/component/MyLoading";
 import util from "@/api/util";
 //table 列
@@ -220,8 +219,9 @@ export default {
     },
     //确定删除用户
     confirmDeleteUser(id) {
-      let exist = Util.isLoginUserIdExist();
-      if (exist) return this.$message.warning("你不能删除自己");
+      let userId = util.getLoginUserId();
+      if (userId == id)
+        return this.$message.warning("你不能删除自己");
       this.$http.get(Api.deleteUser, {params: {id: id}})
           .then(resp => {
             this.$message.success(resp.data.message);

@@ -53,7 +53,7 @@
                   :visible="drawerOps.visible"
                   @close="()=>this.drawerOps.visible=false"
                   :destroyOnClose="true">
-<!--This is a bug , need to fix , about upload-->
+
           <a-form-model :label-col="{span:4}"
                         :wrapper-col="{span:14}">
             <a-form-model-item label="游戏名称">
@@ -369,8 +369,8 @@ export default {
     handleCancel() {
       this.drawerOps.uploadOps.previewVisible = false;
     },
-    preview(file) {
-      this.drawerOps.uploadOps.preview.previewImage = file.response.data;
+    preview() {
+      this.drawerOps.uploadOps.previewImage = this.drawerOps.tempData.coverImg;
       this.drawerOps.uploadOps.previewVisible = true;
     },
     //上传的文件列表发生改变时
@@ -403,11 +403,8 @@ export default {
         this.addGameOps.input.coverImg = fileList[0].response.data;
     },
     //添加游戏预览图片
-    async addGamehandlePreview(file) {
-      if (!file.url && !file.preview) {
-        file.preview = await getBase64(file.originFileObj);
-      }
-      this.addGameOps.uploadOps.previewImage = file.url || file.preview;
+    async addGamehandlePreview() {
+      this.addGameOps.uploadOps.previewImage = this.addGameOps.input.coverImg;
       this.addGameOps.uploadOps.previewVisible = true;
     },
     //添加游戏
