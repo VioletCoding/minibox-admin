@@ -21,16 +21,13 @@
                           @change="saveVisible = true"
                           autoSize/>
             </a-form-model-item>
-            <a-form-model-item label="个人等级">
-              <span>Lv {{ dataSource.level }}</span>
-            </a-form-model-item>
             <a-form-model-item label="登陆密码">
               <a>点击修改</a>
             </a-form-model-item>
             <a-form-model-item v-if="saveVisible"
                                label="操作">
               <a-button type="primary"
-                        @click="save">保存
+                        @click="modifyUser">保存
               </a-button>
             </a-form-model-item>
           </a-form-model>
@@ -42,7 +39,7 @@
                     name="multipartFile"
                     @change="afterUpload"
                     list-type="picture">
-            <img :src="dataSource.userImg"
+            <img :src="dataSource.photoLink"
                  style="width: 300px;height:300px;object-fit: cover;border-radius: 50%"/>
           </a-upload>
         </a-col>
@@ -73,34 +70,41 @@ export default {
         accessToken: util.getLoginUserToken()
       },
       fileList: [],
-      dataSource: {},
+      dataSource: {
+        id: util.getLoginUserId()
+      },
       saveVisible: false
     }
   },
   methods: {
+    //获取用户信息
     getUserInfo() {
-      this.$http.post(Api.getUserList, {id: util.getLoginUserId()})
-          .then(resp => this.dataSource = resp.data.data[0])
+      this.$http.get(Api.userInfo, {params: {id: util.getLoginUserId()}})
+          .then(resp => this.dataSource = resp.data.data)
           .catch(err => util.errMessage(err));
     },
+    //图片上传回调
     afterUpload({fileList}) {
       if (fileList[0].status == "done") {
-        this.dataSource.userImg = fileList[0].response.data;
-        this.$http.post(Api.updateUser, {userImg: this.dataSource.userImg, id: util.getLoginUserId()})
-            .then(resp => {
-              this.$message.success(resp.data.message);
-              sessionStorage.setItem("userImg", this.dataSource.userImg);
-              localStorage.setItem("userImg", this.dataSource.userImg);
-              this.reload();
-            })
-            .catch(err => util.errMessage(err));
+        if (fileList[0].response.code == 200) {
+          this.dataSource.photoLink = fileList[0].response.data.images[0];
+          this.modifyUser();
+        } else {
+          this.$message.warning(fileList[0].response.message);
+        }
       }
     },
-    save() {
-      this.$http.post(Api.updateUser, this.dataSource)
+    //修改个人信息
+    modifyUser() {
+      this.$http.post(Api.userModify, this.dataSource)
           .then(resp => {
             if (resp.data.code == 200) {
               this.$message.success(resp.data.message);
+              sessionStorage.setItem("photoLink", this.dataSource.photoLink);
+              localStorage.setItem("photoLink", this.dataSource.photoLink);
+              sessionStorage.setItem("nickname", this.dataSource.nickname);
+              localStorage.setItem("nickname", this.dataSource.nickname);
+              this.reload();
             } else {
               this.$message.warning(resp.data.message);
             }

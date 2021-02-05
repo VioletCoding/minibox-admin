@@ -1,63 +1,70 @@
+//-----------------校验---------------------
 //登陆前校验接口
-const auth = "user/before";
+const auth = "authApi/authCode";
 //登陆注册复合接口
-const loginOrReg = "user/after";
+const loginOrReg = "authApi/auth";
+//密码登陆
+const passwordLogin = "authApi/passwordLogin";
 //登出接口
-const logout = "user/logout";
-//获取全部菜单，可选参数为id，menuName，不传返回全部
-const getMenu = "admin/allMenu";
-//获取首页的「帖子数量」「用户数量」「游戏数量」「评论数量」
-const getCount = "admin/allCount";
-//获取用户列表
-const getUserList = "admin/userList";
-//更新用户信息
-const updateUser = "admin/updateUser";
-//删除用户
-const deleteUser = "admin/deleteUser";
-//删除用户管理员角色
-const deleteRole = "admin/deleteRole";
-//添加管理员角色
-const addRole = "admin/addRole";
-//显示角色列表
-const showRoles = "admin/showRoles";
-//修改菜单信息
-const updateMenu = "admin/updateMenu";
-//添加菜单
-const addMenu = "admin/addMenu";
+const logout = "authApi/logout";
+//--------------------菜单---------------------------
+const menuList = "menuApi/find";
+//增加菜单
+const menuAdd = "menuApi/add";
+//修改菜单
+const menuModify = "menuApi/modify";
 //删除菜单
-const delMenu = "admin/delMenu";
-//游戏列表
-const gameList = "admin/gameList";
-//上传
-const upload = "admin/upload";
-//更新游戏信息
-const updateGameInfo = "admin/updateGameInfo";
-//新增游戏
-const addGame = "admin/addGame";
-//删除游戏
-const delGame = "admin/delGame";
+const menuDelete = "menuApi/delete";
+//----------------------用户-------------------------
+//用户个人信息
+const userInfo = "userApi/userInfo";
+//修改用户信息
+const userModify = "userApi/userModify";
+//用户列表
+const userList = "userApi/withRoles";
+//删除用户
+const userDelete = "userApi/delete";
+//增加用户管理员角色
+const userAddAdmin = "userApi/addAdmin";
+//删除用户管理员角色
+const deleteAdmin = "userApi/deleteAdmin";
+//--------------------公用---------------------------
+//图片上传接口
+const upload = "publicApi/upload";
+//echarts 数据接口
+const echarts = "publicApi/echarts";
+//----------------------帖子---------------------
 //帖子列表
-const postList = "admin/postList";
-//编辑帖子
-const modifyPost = "admin/modifyPost";
-//删除帖子
-const delPost = "admin/delPost";
-//获取版块信息
-const getBlock = "admin/getBlock";
-//更新版块信息
-const updateBlock = "admin/updateBlock";
-//删除版块信息
-const delBlock = "admin/delBlock";
-//添加版块
-const addBlock = "admin/addBlock";
+const postList = "postApi/list";
+//帖子删除
+const postDel = "postApi/del";
+//帖子修改
+const postModify = "postApi/modify";
+//----------------------版块---------------------
+//版块列表
+const blockList = "blockApi/list";
+//新增版块
+const blockAdd = "blockApi/add";
+//修改版块
+const blockModify = "blockApi/modify";
+//删除版块
+const blockDelete = "blockApi/delete";
+//---------------------游戏--------------------------
+//游戏列表
+const gameList = "gameApi/list";
+//游戏添加
+const gameAdd = "gameApi/add";
+//游戏修改
+const gameModify = "gameApi/modify";
+//游戏删除
+const gameDelete = "gameApi/delete";
 
 export default {
-    auth, loginOrReg, logout,
-    getMenu, updateMenu, addMenu, delMenu,
-    getCount,
-    getUserList, deleteUser, updateUser,
-    deleteRole, addRole, showRoles,
-    gameList, upload, updateGameInfo, addGame, delGame,
-    postList, modifyPost, delPost,
-    getBlock, updateBlock, delBlock, addBlock
+    auth, loginOrReg, passwordLogin, logout,
+    menuList, menuAdd, menuModify, menuDelete,
+    userInfo, userModify, userList, userDelete, deleteAdmin, userAddAdmin,
+    upload, echarts,
+    postList, postDel, postModify,
+    blockList, blockAdd, blockModify, blockDelete,
+    gameList, gameAdd, gameModify, gameDelete
 }

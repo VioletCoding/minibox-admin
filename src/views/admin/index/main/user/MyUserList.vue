@@ -29,7 +29,7 @@
 
         <div style="display: inline-block">
           <a-button type="primary"
-                    @click="queryUser">查询
+                    @click="getUserList">查询
           </a-button>
         </div>
 
@@ -55,7 +55,7 @@
                   @cancel="()=>{return false}">
                 <a-tag v-for="(role,roleIndex) in roles"
                        :key="roleIndex + 'role' "
-                       :color=" role.id ==10001? 'red' : 'cyan' ">
+                       :color=" role.name == 'ADMIN'? 'red' : 'cyan' ">
                   {{ role.name }}
                 </a-tag>
               </a-popconfirm>
@@ -156,13 +156,9 @@ const columns = [
     title: '用户状态'
   },
   {
-    dataIndex: 'roleList',
+    dataIndex: 'roleModelList',
     title: "用户角色",
     scopedSlots: {customRender: "roleList"}
-  },
-  {
-    dataIndex: 'level',
-    title: '用户等级'
   },
   {
     dataIndex: "createDate",
@@ -212,22 +208,35 @@ export default {
   methods: {
     //获取用户列表
     getUserList() {
-      this.$http.post(Api.getUserList)
-          .then(resp => this.userList = resp.data.data)
-          .catch(err => this.$message.error(util.errMessage(err)))
+      this.$http.post(Api.userList, {
+        id: this.queryUserParams.id,
+        nickname: this.queryUserParams.nickname,
+        userState: this.queryUserParams.userState
+      }).then(resp => {
+        if (resp.data.code == 200) {
+          this.userList = resp.data.data;
+        } else {
+          this.$message.warning(resp.data.message);
+        }
+      }).catch(err => this.$message.error(util.errMessage(err)))
           .finally(() => this.dataFlag = true)
     },
     //确定删除用户
     confirmDeleteUser(id) {
       let userId = util.getLoginUserId();
-      if (userId == id)
-        return this.$message.warning("你不能删除自己");
-      this.$http.get(Api.deleteUser, {params: {id: id}})
-          .then(resp => {
-            this.$message.success(resp.data.message);
-            this.getUserList();
-          })
-          .catch(err => this.$message.error(util.errMessage(err)))
+      if (userId == id) {
+        this.$message.warning("你不能删除自己");
+      } else {
+        this.$http.get(Api.deleteUser, {params: {id: id}})
+            .then(resp => {
+              if (resp.data.code == 200) {
+                this.$message.success(resp.data.message);
+                this.getUserList();
+              } else {
+                this.$message.warning(resp.data.message);
+              }
+            }).catch(err => this.$message.error(util.errMessage(err)))
+      }
     },
     //点击修改按钮
     modalHandlerUpdate(record) {
@@ -237,17 +246,21 @@ export default {
     //modal点击了ok
     modalHandlerOk() {
       this.modalOperation.confirmLoading = true;
-      this.$http.post(Api.updateUser, this.modalOperation.singleUserUpdate)
+      this.$http.post(Api.userModify, this.modalOperation.singleUserUpdate)
           .then(resp => {
-            this.$message.success(resp.data.message);
-            this.modalOperation.confirmLoading = false;
-            this.modalOperation.visible = false;
-          })
-          .catch(err => {
-            this.$message.error(util.errMessage(err));
-            this.modalOperation.confirmLoading = false;
-            this.modalOperation.visible = false;
-          })
+            if (resp.data.code == 200) {
+              this.$message.success(resp.data.message);
+              this.modalOperation.confirmLoading = false;
+              this.modalOperation.visible = false;
+              this.getUserList();
+            } else {
+              this.$message.warning(resp.data.message);
+            }
+          }).catch(err => {
+        this.$message.error(util.errMessage(err));
+        this.modalOperation.confirmLoading = false;
+        this.modalOperation.visible = false;
+      })
     },
     //Modal里的用户状态 单选框回调
     radioChange(e) {
@@ -257,46 +270,37 @@ export default {
     stateRadioChange(e) {
       this.queryUserParams.userState = e.target.value;
     },
-    //条件查询用户
-    queryUser() {
-      this.$http.post(Api.getUserList, {
-        id: this.queryUserParams.id,
-        nickname: this.queryUserParams.nickname,
-        userState: this.queryUserParams.userState
-      }).then(resp => this.userList = resp.data.data)
-          .catch(err => this.$message.error(util.errMessage(err)));
-    },
     //删除管理员角色，无法删除用户角色，删除用户角色就相当于这个用户被删除了
     removeAdminRole(record) {
-      console.log("removeAdminRole=>", record.id);
-      let userId = Util.getLoginUserId();
+      let userId = util.getLoginUserId();
       if (userId == record.id) {
         this.$notification.warning({
           message: "您正在删除自己的管理员角色",
           description: "如果你删除了自己的管理员角色，那么你将永久失去，请谨慎操作！"
         })
       }
-      this.$http.get(Api.deleteRole, {params: {userId: record.id}})
+      this.$http.get(Api.deleteAdmin, {params: {id: record.id}})
           .then(resp => {
             if (resp.data.code == 200) {
-              this.$notification["success"]({message: "已移除该用户的管理员身份"});
+              this.$notification.success({message: resp.data.message});
               this.getUserList();
             } else {
-              return this.$notification["warning"]({message: resp.data.message});
+              this.$notification.warning({message: resp.data.message});
             }
-          })
-          .catch(err => this.$message.error(util.errMessage(err)))
+          }).catch(err => this.$message.error(util.errMessage(err)))
     },
     //添加管理员角色
     giveAdminRole(record) {
-      this.$http.get(Api.addRole, {params: {userId: record.id}})
+      this.$http.get(Api.userAddAdmin, {params: {id: record.id}})
           .then(resp => {
             if (resp.data.code == 200) {
+              this.userList = resp.data.data;
               this.getUserList();
-              return this.$notification["success"]({message: resp.data.message});
-            } else return this.$notification["warning"]({message: resp.data.message});
-          })
-          .catch(err => this.$message.error(util.errMessage(err)))
+              this.$notification.success({message: resp.data.message});
+            } else {
+              this.$notification.warning({message: resp.data.message});
+            }
+          }).catch(err => this.$message.error(util.errMessage(err)));
     }
   },
   mounted() {

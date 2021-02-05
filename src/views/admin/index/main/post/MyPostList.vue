@@ -17,6 +17,9 @@
           <a-button type="primary"
                     @click="getPostList">搜索
           </a-button>
+          <a-button type="primary"
+                    @click="resetField">重置
+          </a-button>
         </a-space>
       </div>
       <!--搜索区end-->
@@ -59,41 +62,23 @@
               </a-descriptions-item>
               <a-descriptions-item label="帖子封面图"
                                    :span="1">
-                <a @click="preview(drawerOps.tempData.coverImg)">点击查看</a>
-              </a-descriptions-item>
-              <a-descriptions-item label="评论数"
-                                   :span="1">{{ drawerOps.tempData.countComment }}
+                <a @click="preview(drawerOps.tempData.photoLink)">点击查看</a>
               </a-descriptions-item>
             </a-descriptions>
           </div>
-          <div v-if="drawerOps.tempData.mbUser"
-               style="margin-top: 20px">
+          <div style="margin-top: 20px">
             <a-descriptions title="发布者信息"
                             bordered>
-              <a-descriptions-item label="昵称"
-                                   :span="3">{{ drawerOps.tempData.mbUser.nickname }}
-              </a-descriptions-item>
               <a-descriptions-item label="ID"
-                                   :span="1">{{ drawerOps.tempData.mbUser.id }}
-              </a-descriptions-item>
-              <a-descriptions-item label="等级"
-                                   :span="1">Lv {{ drawerOps.tempData.mbUser.level }}
-              </a-descriptions-item>
-              <a-descriptions-item label="头像"
-                                   :span="1">
-                <a @click="preview(drawerOps.tempData.mbUser.userImg)">点击查看</a>
+                                   :span="1">{{ drawerOps.tempData.authorId }}
               </a-descriptions-item>
             </a-descriptions>
           </div>
-          <div v-if="drawerOps.tempData.mbBlock"
-               style="margin-top: 20px">
+          <div style="margin-top: 20px">
             <a-descriptions title="版块信息"
                             bordered>
-              <a-descriptions-item label="名称"
-                                   :span="1">{{ drawerOps.tempData.mbBlock.name }}
-              </a-descriptions-item>
               <a-descriptions-item label="ID"
-                                   :span="1">{{ drawerOps.tempData.mbBlock.id }}
+                                   :span="1">{{ drawerOps.tempData.blockId }}
               </a-descriptions-item>
             </a-descriptions>
           </div>
@@ -148,27 +133,23 @@ const columns = [
     width: "80px"
   },
   {
-    dataIndex: "mbUser.id",
+    dataIndex: "authorId",
     title: "发布者ID",
     width: "90px"
   },
   {
-    dataIndex: "mbUser.nickname",
-    title: "用户昵称",
-    ellipsis: true
-  },
-  {
-    dataIndex: "mbBlock.id",
+    dataIndex: "blockId",
     title: "版块ID",
     width: "80px"
   },
   {
-    dataIndex: "mbBlock.name",
-    title: "版块名称"
-  },
-  {
     dataIndex: "title",
     title: "帖子标题",
+    ellipsis: true
+  },
+  {
+    dataIndex: "content",
+    title: "帖子内容",
     ellipsis: true
   },
   {
@@ -196,7 +177,7 @@ export default {
       searchOps: {
         id: undefined,
         title: undefined,
-        uid: undefined
+        authorId: undefined
       },
       //抽屉可选属性
       drawerOps: {
@@ -219,6 +200,11 @@ export default {
     }
   },
   methods: {
+    resetField() {
+      this.searchOps.id = undefined;
+      this.searchOps.title = undefined;
+      this.searchOps.authorId = undefined;
+    },
     //获取帖子列表
     getPostList() {
       this.$http.post(Api.postList, this.searchOps)
@@ -238,7 +224,7 @@ export default {
     },
     //保存帖子更改
     save() {
-      this.$http.post(Api.modifyPost, this.drawerOps.tempData)
+      this.$http.post(Api.postModify, this.drawerOps.tempData)
           .then(resp => {
             this.$message.success(resp.data.message);
             this.getPostList();
@@ -248,13 +234,15 @@ export default {
     },
     //删除帖子
     del(id) {
-      this.$http.get(Api.delPost, {params: {id: id}})
+      this.$http.get(Api.postDel, {params: {id: id}})
           .then(resp => {
-            this.$message.success(resp.data.message);
-            console.log(resp);
-            this.getPostList();
-          })
-          .catch(err => this.$message.error(util.errMessage(err)))
+            if (resp.data.code == 200) {
+              this.$message.success(resp.data.message);
+              this.dataSource = resp.data.data;
+            } else {
+              this.$message.warning(resp.data.message);
+            }
+          }).catch(err => this.$message.error(util.errMessage(err)))
     }
   },
   mounted() {

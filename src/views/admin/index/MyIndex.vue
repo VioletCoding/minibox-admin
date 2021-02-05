@@ -1,47 +1,27 @@
 <template>
-  <div class="container"
-       v-if="dataFlag">
-
+  <div v-if="dataFlag">
     <!--顶部导航-->
-    <div class="m-topBar">
-      <!--系统名-->
-      <div class="inline-block">
-        Mini Box Pro
-      </div>
-      <!--系统名end-->
-
+    <div class="top-bar">
+      <p>Mini Box Pro</p>
       <!--折叠菜单按钮-->
-      <div class="inline-block m-menu-btn">
+      <div>
         <a-button type="primary"
-                  @click="toggleCollapsed"
+                  @click="collapsed = !collapsed"
                   size="large">
           <a-icon :type="collapsed ? 'menu-unfold' : 'menu-fold'"/>
         </a-button>
       </div>
       <!--折叠菜单按钮end-->
-
-      <!--一些文字-->
-      <div class="inline-block m-top-text">
-        欢迎进入 Mini Box 后台管理页面
-      </div>
-      <!--一些文字end-->
-
-      <div class="inline-block m-top-right-item">
-
-        <div class="inline-block">
-          <a-input-search placeholder="输入搜索内容"
-                          style="width: 180px"/>
-        </div>
-
+      <p>欢迎进入 Mini Box 后台管理页面</p>
+      <p>{{ userInfo.nickname }}</p>
+      <div>
         <a-dropdown overlayClassName="user-info"
                     placement="bottomCenter">
-          <div class="inline-block user-info">
-            <a-avatar :size="30"
-                      :src="userInfo.userImg"
-                      alt="头像"/>
-            <div class="inline-block">{{ userInfo.nickname }}</div>
-          </div>
-
+          <a-avatar :size="30"
+                    :src="userInfo.photoLink"
+                    alt="头像加载失败"
+                    style="margin-right: 50px">
+          </a-avatar>
           <a-menu slot="overlay">
             <a-menu-item>
               <a @click="()=>this.$router.push('/personal')">
@@ -51,15 +31,10 @@
             </a-menu-item>
           </a-menu>
         </a-dropdown>
-
-
-        <div class="inline-block m-top-right-logout">
-          <a-button type="primary"
-                    icon="logout"
-                    @click="logoutConfirm">退出登录
-          </a-button>
-        </div>
-
+        <a-button type="danger"
+                  icon="logout"
+                  @click="logoutConfirm">退出登录
+        </a-button>
       </div>
 
     </div>
@@ -118,33 +93,28 @@ export default {
       //菜单信息列表
       menuList: [],
       //用户信息
-      userInfo: {}
+      userInfo: {
+        nickname: localStorage.getItem("nickname"),
+        photoLink: localStorage.getItem("photoLink")
+      }
     }
   },
   methods: {
     //点击菜单时跳转路由
     jump({item, key, selectedKeys}) {
-      this.$router.push(key)
-          .catch(err => this.$message.error("该路由暂时不可用"));
-    },
-    //收缩导航菜单
-    toggleCollapsed() {
-      this.collapsed = !this.collapsed;
+      this.$router.push(key).catch(err => this.$message.error("该路由暂时不可用"));
     },
     //获取菜单列表
     getMenuList() {
-      this.$http.post(Api.getMenu)
+      this.$http.post(Api.menuList)
           .then(resp => {
-            this.menuList = resp.data.data;
-            this.dataFlag = true;
-            console.log(this.menuList);
-          })
-          .catch(err => this.$message.error(util.errMessage(err)));
-    },
-    //获取部分用户信息
-    loadUserInfo() {
-      this.userInfo.nickname = localStorage.getItem("nickname");
-      this.userInfo.userImg = localStorage.getItem("userImg");
+            if (resp.data.code == 200) {
+              this.menuList = resp.data.data;
+              this.dataFlag = true;
+            } else {
+              this.$message.warning(resp.data.message);
+            }
+          }).catch(err => this.$message.error(util.errMessage(err)));
     },
     //退出登录确认框
     logoutConfirm() {
@@ -156,121 +126,98 @@ export default {
         onOk() {
           realThis.$http.get(Api.logout)
               .then(resp => {
-                realThis.$message.success("欢迎下次使用,再见");
-                realThis.$router.replace("/login");
-              })
-              .finally(() => {
-                sessionStorage.clear();
-                localStorage.clear();
-              })
+                if (resp.data.code == 200) {
+                  realThis.$message.success("欢迎下次使用,再见");
+                  sessionStorage.clear();
+                  localStorage.clear();
+                  realThis.$router.replace("/login");
+                } else {
+                  realThis.$message.warning(resp.data.message);
+                }
+              }).catch(err => util.errMessage(err));
         },
         onCancel() {
-          realThis.$message.warning("别乱点啊");
+          realThis.$message.warning("别乱点啊！");
         }
       })
     },
-    //根据时间显示上午好下午好之类的
-    loadTimeTip() {
-      const date = new Date();
-      let tip;
-      if (date.getHours() >= 0 && date.getHours() < 12)
-        return tip = "上午好";
-      if (date.getHours() >= 12 && date.getHours() < 18)
-        return tip = "下午好";
-      else
-        return tip = "晚上好";
-    },
     //跳转到对应的菜单
     routerPush(url) {
-      if (util.isNullOrEmpty(url))
-        return 0;
-      this.$router.push(url);
+      if (!util.isNullOrEmpty(url)) {
+        this.$router.push(url).catch(err => err);
+      }
     }
   },
   mounted() {
     this.getMenuList();
-    this.loadUserInfo();
-    let tip = this.loadTimeTip();
-    this.$notification.success({message: tip + " " + localStorage.getItem("nickname")});
   }
 
 }
 </script>
 
 <style scoped lang="less">
-.inline-block {
-  display: inline-block;
+.top-bar {
+  display: flex;
+  flex-direction: row;
+  background-color: #1890FF;
+  height: 60px;
+  width: 100%;
+  padding: 0 10px 0 10px;
+
+  p {
+    padding: 0;
+    margin: 0;
+    color: white;
+    line-height: 60px;
+  }
+
+  p:nth-child(1) {
+    font-size: 28px;
+    font-weight: bold;
+    width: 200px;
+  }
+
+  div:nth-child(2) {
+    line-height: 60px;
+    margin: 0 30px 0 0;
+  }
+
+  p:nth-child(3) {
+    font-size: 16px;
+  }
+
+  p:nth-child(4) {
+    margin: 0 30px 0 auto;
+    font-size: 18px;
+  }
+
+  div:nth-child(5) {
+    line-height: 60px;
+  }
+
 }
 
-.container {
 
-  .m-topBar {
-    background-color: #1890ff;
-    padding: 10px 0 0 20px;
-    width: 100%;
-    height: 60px;
+.box {
+  width: 100%;
+  height: 93.5vh;
+  display: flex;
+  flex-direction: row;
+}
 
-    div:first-child {
-      font-size: 26px;
-      font-weight: bold;
-      color: white;
-    }
+.m-menu {
+  height: 93.5vh;
+  background-color: white;
+}
 
-    .m-menu-btn {
-      margin: 0 20px 0 20px;
-    }
+.m-right {
+  width: 100%;
+  padding: 20px;
+}
 
-    .m-top-text {
-      width: 500px;
-      font-size: 16px;
-      color: white;
-    }
-
-    .m-top-right-item {
-      width: 670px;
-      height: 50px;
-      float: right;
-
-      .user-info {
-        margin-left: 40px;
-        cursor: pointer;
-
-        div:nth-child(2) {
-          margin-left: 20px;
-          color: white;
-        }
-      }
-
-      .m-top-right-logout {
-        float: right;
-        margin: 7px 20px 0 0;
-      }
-    }
-
-  }
-
-  .box {
-    width: 100%;
-    height: 93.5vh;
-    display: flex;
-    flex-direction: row;
-  }
-
-  .m-menu {
-    height: 93.5vh;
-    background-color: white;
-  }
-
-  .m-right {
-    width: 100%;
-    padding: 20px;
-  }
-
-  .m-contain {
-    padding: 20px;
-    margin-top: 20px;
-    background-color: #F0F2F5;
-  }
-
+.m-contain {
+  padding: 20px;
+  margin-top: 20px;
+  background-color: #F0F2F5;
 }
 </style>

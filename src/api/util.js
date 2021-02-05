@@ -1,4 +1,6 @@
 //检查有没有登陆者的id
+import { ExceptionMap } from "ant-design-vue/lib/result";
+
 function isLoginUserIdExist() {
     let local = localStorage.getItem("userId");
     let session = sessionStorage.getItem("userId");

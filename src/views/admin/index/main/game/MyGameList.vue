@@ -27,7 +27,7 @@
                  rowKey="id">
           <template #expandedRowRender="record">
             <p style="text-align: center;font-size: 20px">{{ record.description }}</p>
-            <img :src="record.coverImg"
+            <img :src="record.photoLink"
                  alt="图片加载失败"
                  style="width:100%;height:500px;object-fit: contain"/>
           </template>
@@ -53,7 +53,6 @@
                   :visible="drawerOps.visible"
                   @close="()=>this.drawerOps.visible=false"
                   :destroyOnClose="true">
-
           <a-form-model :label-col="{span:4}"
                         :wrapper-col="{span:14}">
             <a-form-model-item label="游戏名称">
@@ -67,9 +66,6 @@
             </a-form-model-item>
             <a-form-model-item label="记录状态">
               <a-input v-model="drawerOps.tempData.state"/>
-            </a-form-model-item>
-            <a-form-model-item label="游戏状态">
-              <a-input v-model="drawerOps.tempData.gameState"/>
             </a-form-model-item>
             <a-form-model-item label="开发商">
               <a-input v-model="drawerOps.tempData.developer"/>
@@ -246,11 +242,6 @@ const columns = [
     width: "90px"
   },
   {
-    dataIndex: "gameState",
-    title: "游戏状态",
-    width: "90px"
-  },
-  {
     dataIndex: "score",
     title: "游戏评分",
     width: "90px"
@@ -269,11 +260,6 @@ const columns = [
     dataIndex: "publisher",
     title: "发行商",
     width: "150px"
-  },
-  {
-    dataIndex: "scoreCount",
-    title: "评分数",
-    width: "75px"
   },
   {
     dataIndex: "createDate",
@@ -326,7 +312,7 @@ export default {
           developer: "",
           publisher: "",
           description: "",
-          coverImg: ""
+          photoLink: ""
         },
         uploadOps: {
           previewImage: "",
@@ -356,9 +342,10 @@ export default {
   methods: {
     getGameList() {
       this.$http.post(Api.gameList)
-          .then(resp => this.dataSource = resp.data.data)
-          .catch(err => this.$message.error(util.errMessage(err)))
-          .finally(f => this.dataFlag = true)
+          .then(resp => {
+            this.dataSource = resp.data.data;
+          }).catch(err => this.$message.error(util.errMessage(err)))
+          .finally(() => this.dataFlag = true)
     },
     //点击 table 每行的修改按钮时
     edit(record) {
@@ -369,26 +356,35 @@ export default {
     handleCancel() {
       this.drawerOps.uploadOps.previewVisible = false;
     },
+    //预览
     preview() {
-      this.drawerOps.uploadOps.previewImage = this.drawerOps.tempData.coverImg;
+      this.drawerOps.uploadOps.previewImage = this.drawerOps.tempData.photoLink;
       this.drawerOps.uploadOps.previewVisible = true;
     },
     //上传的文件列表发生改变时
     handleChange({fileList}) {
       this.drawerOps.uploadOps.fileList = fileList;
       if (fileList[0].status == "done") {
-        this.drawerOps.tempData.coverImg = fileList[0].response.data;
+        if (fileList[0].response.code == 200) {
+          this.drawerOps.tempData.photoLink = fileList[0].response.data.images[0];
+          this.onDraweOk();
+        } else {
+          this.$notification.warning({message: fileList[0].response.message});
+        }
       }
     },
     //点击抽屉里的确定时
     onDraweOk() {
-      this.$http.post(Api.updateGameInfo, this.drawerOps.tempData)
+      this.$http.post(Api.gameModify, this.drawerOps.tempData)
           .then(resp => {
-            this.$notification.success({message: resp.data.message})
-            this.drawerOps.visible = false;
-            this.getGameList();
-          })
-          .catch(err => this.$message.error(util.errMessage(err)))
+            if (resp.data.code == 200) {
+              this.$notification.success({message: resp.data.message});
+              this.drawerOps.visible = false;
+              this.dataSource = resp.data.data;
+            } else {
+              this.$notification.warning({message: resp.data.message});
+            }
+          }).catch(err => this.$message.error(util.errMessage(err)))
     },
     //搜索游戏
     searchGame() {
@@ -399,32 +395,43 @@ export default {
     //添加游戏文件列表发生改变时
     addGamehandleChange({fileList}) {
       this.addGameOps.uploadOps.fileList = fileList;
-      if (fileList[0].status == "done")
-        this.addGameOps.input.coverImg = fileList[0].response.data;
+      if (fileList[0].status == "done") {
+        if (fileList[0].response.code == 200) {
+          this.addGameOps.input.photoLink = fileList[0].response.data.images[0];
+        } else {
+          this.$notification.warning({message: fileList[0].response.message});
+        }
+      }
     },
     //添加游戏预览图片
     async addGamehandlePreview() {
-      this.addGameOps.uploadOps.previewImage = this.addGameOps.input.coverImg;
+      this.addGameOps.uploadOps.previewImage = this.addGameOps.input.photoLink;
       this.addGameOps.uploadOps.previewVisible = true;
     },
     //添加游戏
     addGameOnDraweOk() {
-      this.$http.post(Api.addGame, this.addGameOps.input)
+      this.$http.post(Api.gameAdd, this.addGameOps.input)
           .then(resp => {
-            this.$notification.success({message: resp.data.message})
-            this.addGameOps.visiale = false;
-            this.getGameList();
-          })
-          .catch(err => this.$message.error(util.errMessage(err)));
+            if (resp.data.code == 200) {
+              this.$notification.success({message: resp.data.message})
+              this.addGameOps.visiale = false;
+              this.dataSource = resp.data.data;
+            } else {
+              this.$notification.warning({message: resp.data.message})
+            }
+          }).catch(err => this.$message.error(util.errMessage(err)));
     },
     //删除游戏
     delGame(id) {
-      this.$http.get(Api.delGame, {params: {id: id}})
+      this.$http.get(Api.gameDelete, {params: {id: id}})
           .then(resp => {
-            this.$notification.success({message: resp.data.message});
-            this.getGameList();
-          })
-          .catch(err => this.$message.error(util.errMessage(err)))
+            if (resp.data.code == 200) {
+              this.$notification.success({message: resp.data.message});
+              this.dataSource = resp.data.data;
+            } else {
+              this.$notification.warning({message: resp.data.message});
+            }
+          }).catch(err => this.$message.error(util.errMessage(err)))
     }
   },
   mounted() {

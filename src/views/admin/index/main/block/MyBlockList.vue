@@ -23,7 +23,7 @@
                                @blur="onBlur"
                                backfill
                                :data-source="gameDataSource"
-                               v-model="modalOps.data.gid"
+                               v-model="modalOps.data.gameId"
                                placeholder="点击此处选择"/>
             </a-form-model-item>
           </a-form-model>
@@ -64,10 +64,12 @@
                        placeholder="请输入版块名称"/>
             </a-form-model-item>
             <a-form-model-item label="关联游戏">
-              <a-input v-model="drwerOps.recordData.gid"/>
+              <a-input v-model="drwerOps.recordData.gameId"/>
             </a-form-model-item>
             <a-form-model-item label="操作">
-              <a-button type="primary" @click="updateBlock">确定</a-button>
+              <a-button type="primary"
+                        @click="updateBlock">确定
+              </a-button>
             </a-form-model-item>
           </a-form-model>
 
@@ -97,7 +99,7 @@ const columns = [
     title: "版块名称"
   },
   {
-    dataIndex: "gid",
+    dataIndex: "gameId",
     title: "关联的游戏ID"
   },
   {
@@ -135,7 +137,7 @@ export default {
       modalOps: {
         data: {
           name: "",
-          gid: undefined,
+          gameId: undefined,
         },
         rules: {
           name: [{
@@ -160,7 +162,7 @@ export default {
   methods: {
     //获取版块信息
     getBlockList() {
-      this.$http.post(Api.getBlock)
+      this.$http.post(Api.blockList)
           .then(resp => this.dataSource = resp.data.data)
           .catch(err => this.$message.error(util.errMessage(err)))
           .finally(() => this.loading = false)
@@ -169,17 +171,17 @@ export default {
     getGameIdList() {
       this.$http.post(Api.gameList)
           .then(resp => {
+            this.gameDataSource = resp.data.data;
             let idArr = [];
-            resp.data.data.filter(item => idArr.push(item.id + "-" + item.name));
+            this.gameDataSource.filter(item => idArr.push(item.id + "-" + item.name));
             this.gameDataSource = idArr;
-          })
-          .catch(err => util.errMessage(err))
+          }).catch(err => util.errMessage(err));
     },
-    //校验选择的gid是否是返回的gid,(主要是防止手动输入)
+    //校验选择的gameId是否是返回的gameId,(主要是防止手动输入)
     onBlur() {
       let data = this.gameDataSource;
       for (let i of data) {
-        if (i == this.modalOps.data.gid)
+        if (i == this.modalOps.data.gameId)
           return true;
       }
       return false;
@@ -187,21 +189,22 @@ export default {
     //添加版块
     addBlock() {
       //先判空
-      if (this.modalOps.data.name.trim() == "")
+      if (this.modalOps.data.name.trim() == "") {
         return this.$message.warning("游戏名字不能为空");
+      }
       //判断下是不是从下拉框选择的游戏
       if (this.onBlur()) {
         this.modalOps.loading = true;
         //分隔一下字符串，取前面的id
-        let split = this.modalOps.data.gid.split("-");
-        this.modalOps.data.gid = split[0];
-        this.$http.post(Api.addBlock, this.modalOps.data)
+        let split = this.modalOps.data.gameId.split("-");
+        this.modalOps.data.gameId = split[0];
+        this.$http.post(Api.blockAdd, this.modalOps.data)
             .then(resp => {
               if (resp.data.code == 200) {
                 this.modalOps.loading = false;
                 this.modalOps.visible = false;
                 this.$message.success(resp.data.message);
-                this.getBlockList();
+                this.dataSource = resp.data.data;
               } else {
                 this.$message.warning(resp.data.message);
               }
@@ -217,9 +220,10 @@ export default {
     },
     //更新版块信息
     updateBlock() {
-      this.$http.post(Api.updateBlock, this.drwerOps.recordData)
+      this.$http.post(Api.blockModify, this.drwerOps.recordData)
           .then(resp => {
             if (resp.data.code == 200) {
+              this.dataSource = resp.data.data;
               this.$message.success(resp.data.message);
             } else {
               this.$message.success(resp.data.message);
@@ -230,7 +234,7 @@ export default {
     },
     //删除版块
     delBlock(id) {
-      this.$http.get(Api.delBlock, {params: {id: id}})
+      this.$http.get(Api.blockDelete, {params: {id: id}})
           .then(resp => {
             if (resp.data.code != 200) {
               this.$message.warning(resp.data.message);

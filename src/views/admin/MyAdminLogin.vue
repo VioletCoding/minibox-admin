@@ -5,7 +5,7 @@
       <!--标题-->
       <div>
         <p>Mini Box</p>
-        <p>Mini Box 是一名叫龚鸿炜的学生仔写的一个毕业设计</p>
+        <p>Mini Box Design By 龚鸿炜</p>
       </div>
       <!--Tabs标签切换-->
       <div class="tabs">
@@ -50,9 +50,7 @@
 
           <div v-if="tabActiveKey == 2"
                class="authCodeInput">
-
             <div class="inline-block">
-
               <a-form-model-item prop="authCode"
                                  has-feedback>
                 <a-input v-model="authForm.authCode"
@@ -90,11 +88,9 @@
         </a-button>
       </div>
       <!--公共区域end-->
-
       <div class="footer">
         <a>Copyright &copy; 2021 龚鸿炜 出品</a>
       </div>
-
       <!--表单输入区end-->
     </div>
   </div>
@@ -166,12 +162,26 @@ export default {
     autoLogin(checkedValue) {
       this.isAutoLogin = checkedValue.target.checked;
     },
+    //自动登录与否的逻辑
+    autoLoginService(nicname, photoLink, accessToken, userId) {
+      if (this.isAutoLogin) {
+        localStorage.setItem("nickname", nicname);
+        localStorage.setItem("photoLink", photoLink);
+        localStorage.setItem("accessToken", accessToken);
+        localStorage.setItem("userId", userId);
+      } else {
+        sessionStorage.setItem("nickname", nicname);
+        sessionStorage.setItem("photoLink", photoLink);
+        sessionStorage.setItem("accessToken", accessToken);
+        sessionStorage.setItem("userId", userId);
+      }
+    },
     //获取验证码按钮
     getAuthCode() {
       //单个参数验证，传入prop名，得到回调
       this.$refs.login.validateField("username", v => {
         //如果返回的errorMessage为空，那么校验通过，否则不通过
-        if (v.match("")) {
+        if (v == "") {
           this.getAuthCodeButtonLoadingFlag = true;
           //请求验证码接口
           this.$http.post(Api.auth, {username: this.authForm.username})
@@ -180,70 +190,80 @@ export default {
                   this.$message.success("验证码已发送");
                   this.getAuthCodeButtonLoadingFlag = false;
                   this.getAuthCodeButtonDisableFlag = true;
-                  //5秒后才可以再次点击
+                  //30秒后才可以再次点击
                   setTimeout(() => {
                     this.getAuthCodeButtonDisableFlag = false;
-                  }, 5000);
+                  }, 30000);
+                } else {
+                  this.$message.success(resp.data.message);
                 }
-              })
-              .catch(err => this.$message.error(util.errMessage(err)))
+              }).catch(err => this.$message.error(util.errMessage(err)))
               .finally(() => this.getAuthCodeButtonLoadingFlag = false);
-        } else
-          this.$message.warning("请填写输入框内必填信息");
+        } else {
+          this.$message.warning("请填写用户名");
+        }
       });
     },
-    //确定按钮
+    //确定按钮(使用密码登陆)
     confirm() {
-      //TODO 用户名密码登陆 暂不可用
       if (this.tabActiveKey == 1) {
         this.$refs.login.validate(v => {
-          if (v)
-            alert("功能未开发，请暂时使用验证码登陆");
-          else
-            console.warn("校验不通过，不允许登陆");
+          if (v) {
+            this.$http.post(Api.passwordLogin, {username: this.authForm.username, password: this.authForm.password}
+            ).then(resp => {
+              let result = resp.data;
+              if (result.code == 200) {
+                if (result.data.adminFlag) {
+                  let userInfo = result.data.userInfo;
+                  this.autoLoginService(userInfo.nickname, userInfo.photoLink, result.data.token, userInfo.id);
+                  let tip = this.loadTimeTip();
+                  this.$notification.success({message: tip + " " + localStorage.getItem("nickname")});
+                  this.$router.replace("/home");
+                } else {
+                  this.$message.warning("你不是管理员");
+                }
+              }
+            }).catch(err => util.errMessage(err));
+          } else {
+            this.$message.warning("请填写登陆信息");
+          }
         });
       }
       //验证码登陆
       if (this.tabActiveKey == 2) {
         this.$refs.login.validate(v => {
           if (v) {
-            this.$http.post(Api.loginOrReg, {
-              username: this.authForm.username,
-              authCode: this.authForm.authCode
-            })
+            this.$http.post(Api.loginOrReg, {username: this.authForm.username, authCode: this.authForm.authCode})
                 .then(resp => {
-                  let returnData = resp.data.data;
-                  //正常情况
-                  if (resp.data.code == 200) {
-                    //遍历角色列表，如果有管理员身份，则return true
-                    if (returnData.roleList.some(v => {
-                      return v.id == 10001;
-                    })) {
-                      //临时存储一下部分信息
-                      localStorage.setItem("nickname", returnData.nickname);
-                      localStorage.setItem("userImg", returnData.userImg);
-                      //如果未勾选了自动登录（7天），那么把token存储到sessionStorage，关闭页面后则登录信息失效
-                      if (!this.isAutoLogin) {
-                        sessionStorage.setItem("accessToken", returnData.token);
-                        sessionStorage.setItem("userId", returnData.id);
-                        this.$message.success("欢迎回来，尊敬的管理员 「" + returnData.nickname + "」 您未勾选自动登录,页面关闭后会清空您的信息");
-                        this.$router.replace("/home");
-                        return true;
-                      }
-                      //否则存储到localStorage
-                      localStorage.setItem("accessToken", returnData.token);
-                      localStorage.setItem("userId", returnData.id);
-                      this.$message.success("欢迎回来，尊敬的管理员 「 " + returnData.nickname + "」 您勾选了自动登录,下次将会自动登录");
+                  let result = resp.data;
+                  if (result.code == 200) {
+                    if (result.adminFlag) {
+                      let userInfo = result.data.userInfo;
+                      this.autoLoginService(userInfo.nickname, userInfo.photoLink, result.data.token, userInfo.id);
+                      let tip = this.loadTimeTip();
+                      this.$notification.success({message: tip + " " + localStorage.getItem("nickname")});
                       this.$router.replace("/home");
-                      return true;
-                    } else
-                      this.$message.error("你根本不是管理员,你怎么发现我们的后台系统的?我已经报警了!");
-                  } else
+                    } else {
+                      this.$message.warning("你不是管理员");
+                    }
+                  } else {
                     this.$message.warning(resp.data.message);
+                  }
                 }).catch(err => this.$message.error(util.errMessage(err)));
           }
         });
       }
+    },
+    //根据时间显示上午好下午好之类的
+    loadTimeTip() {
+      const date = new Date();
+      let tip;
+      if (date.getHours() >= 0 && date.getHours() < 12)
+        return tip = "上午好";
+      if (date.getHours() >= 12 && date.getHours() < 18)
+        return tip = "下午好";
+      else
+        return tip = "晚上好";
     }
   }
 };

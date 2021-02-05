@@ -195,13 +195,12 @@ export default {
     //获取菜单信息
     getMenuList() {
       this.tableOps.isLoading = true;
-      this.$http.post(Api.getMenu, this.searchOps)
+      this.$http.post(Api.menuList, this.searchOps)
           .then(resp => {
             this.menuList = resp.data.data;
             this.tableOps.isLoading = false;
             this.dataFlag = true;
-          })
-          .catch(err => this.$message.error(util.errMessage(err)))
+          }).catch(err => this.$message.error(util.errMessage(err)))
     },
     //显示modal，并且把那一列的record存起来方便使用
     showModal(record) {
@@ -216,15 +215,19 @@ export default {
     //修改菜单信息
     updateMenuInfo() {
       this.tableOps.modalOps.confirmLoading = true;
-      this.$http.post(Api.updateMenu, this.tableOps.modalOps.inputValue)
+      this.$http.post(Api.menuModify, this.tableOps.modalOps.inputValue)
           .then(resp => {
-            this.tableOps.modalOps.confirmLoading = false;
-            this.tableOps.modalOps.visible = false;
-            this.tableOps.modalOps.inputValue = {};
-            this.$notification.success({message: resp.data.message});
-          })
-          .catch(err => this.$message.error(util.errMessage(err)))
-          .finally(() => this.reload)
+            if (resp.data.code == 200) {
+              this.tableOps.modalOps.confirmLoading = false;
+              this.tableOps.modalOps.visible = false;
+              this.tableOps.modalOps.inputValue = {};
+              this.menuList = resp.data.data;
+              this.$notification.success({message: resp.data.message});
+            } else {
+              this.$notification.warning({message: resp.data.message});
+            }
+          }).catch(err => this.$message.error(util.errMessage(err)))
+          .finally(() => this.reload);
     },
     //显示添加菜单的模态框
     showAddMenuModal(record) {
@@ -233,16 +236,28 @@ export default {
     },
     //添加菜单
     addMenu() {
-      this.$http.post(Api.addMenu, this.addMenuModalOps.inputValue)
-          .then(resp => this.$notification.success({message: resp.data.message}))
-          .catch(err => this.$message.error(util.errMessage(err)))
-          .finally(() => this.addMenuModalOps.visible = false)
+      this.$http.post(Api.menuAdd, this.addMenuModalOps.inputValue)
+          .then(resp => {
+            if (resp.data.code == 200) {
+              this.$notification.success({message: resp.data.message});
+              this.getMenuList();
+            } else {
+              this.$notification.warning({message: resp.data.message});
+            }
+          }).catch(err => this.$message.error(util.errMessage(err)))
+          .finally(() => this.addMenuModalOps.visible = false);
     },
     //删除菜单
     deleteMenu(record) {
-      this.$http.get(Api.delMenu, {params: {id: record.id}})
-          .then(resp => this.$notification.success({message: resp.data.message}))
-          .catch(err => this.$message.error(util.errMessage(err)))
+      this.$http.get(Api.menuDelete, {params: {id: record.id}})
+          .then(resp => {
+            if (resp.data.code == 200) {
+              this.$notification.success({message: resp.data.message});
+              this.getMenuList();
+            } else {
+              this.$notification.warning({message: resp.data.message});
+            }
+          }).catch(err => this.$message.error(util.errMessage(err)))
     }
   },
   mounted() {
