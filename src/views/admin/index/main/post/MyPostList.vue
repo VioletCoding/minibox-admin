@@ -208,8 +208,13 @@ export default {
     //获取帖子列表
     getPostList() {
       this.$http.post(Api.postList, this.searchOps)
-          .then(resp => this.dataSource = resp.data.data)
-          .catch(err => this.$message.error(util.errMessage(err)))
+          .then(resp => {
+            if (resp.data.code == 200) {
+              this.dataSource = resp.data.data;
+            } else {
+              this.$message.warning(resp.data.message);
+            }
+          }).catch(err => this.$message.error(util.errMessage(err)))
           .finally(() => this.dataFlag = true)
     },
     //预览图片
@@ -226,11 +231,14 @@ export default {
     save() {
       this.$http.post(Api.postModify, this.drawerOps.tempData)
           .then(resp => {
-            this.$message.success(resp.data.message);
-            this.getPostList();
-            this.drawerOps.editing = false;
-          })
-          .catch(err => this.$message.error(util.errMessage(err)))
+            if (resp.data.code == 200) {
+              this.$message.success(resp.data.message);
+              this.getPostList();
+              this.drawerOps.editing = false;
+            } else {
+              this.$message.warning(resp.data.message);
+            }
+          }).catch(err => this.$message.error(util.errMessage(err)))
     },
     //删除帖子
     del(id) {

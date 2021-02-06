@@ -197,9 +197,13 @@ export default {
       this.tableOps.isLoading = true;
       this.$http.post(Api.menuList, this.searchOps)
           .then(resp => {
-            this.menuList = resp.data.data;
-            this.tableOps.isLoading = false;
-            this.dataFlag = true;
+            if (resp.data.code == 200) {
+              this.menuList = resp.data.data;
+              this.tableOps.isLoading = false;
+              this.dataFlag = true;
+            } else {
+              this.$message.warning(resp.data.message);
+            }
           }).catch(err => this.$message.error(util.errMessage(err)))
     },
     //显示modal，并且把那一列的record存起来方便使用

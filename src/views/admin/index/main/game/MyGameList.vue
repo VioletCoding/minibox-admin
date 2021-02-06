@@ -343,7 +343,11 @@ export default {
     getGameList() {
       this.$http.post(Api.gameList)
           .then(resp => {
-            this.dataSource = resp.data.data;
+            if (resp.data.code == 200) {
+              this.dataSource = resp.data.data;
+            } else {
+              this.$message.warning(resp.data.message);
+            }
           }).catch(err => this.$message.error(util.errMessage(err)))
           .finally(() => this.dataFlag = true)
     },
@@ -389,8 +393,13 @@ export default {
     //搜索游戏
     searchGame() {
       this.$http.post(Api.gameList, this.searchOps)
-          .then(resp => this.dataSource = resp.data.data)
-          .catch(err => this.$message.error(util.errMessage(err)));
+          .then(resp => {
+            if (resp.data.code == 200) {
+              this.dataSource = resp.data.data;
+            } else {
+              this.$message.warning(resp.data.message);
+            }
+          }).catch(err => this.$message.error(util.errMessage(err)));
     },
     //添加游戏文件列表发生改变时
     addGamehandleChange({fileList}) {

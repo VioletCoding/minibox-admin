@@ -2,7 +2,6 @@
 <template>
   <div>
     <div v-if="!loading">
-
       <div style="margin-bottom: 20px">
         <a-button type="primary"
                   @click="modalOps.visible=true">添加版块
@@ -163,18 +162,27 @@ export default {
     //获取版块信息
     getBlockList() {
       this.$http.post(Api.blockList)
-          .then(resp => this.dataSource = resp.data.data)
-          .catch(err => this.$message.error(util.errMessage(err)))
+          .then(resp => {
+            if (resp.data.code == 200) {
+              this.dataSource = resp.data.data;
+            } else {
+              this.$message.warning(resp.data.message);
+            }
+          }).catch(err => this.$message.error(util.errMessage(err)))
           .finally(() => this.loading = false)
     },
     //获取游戏信息
     getGameIdList() {
       this.$http.post(Api.gameList)
           .then(resp => {
-            this.gameDataSource = resp.data.data;
-            let idArr = [];
-            this.gameDataSource.filter(item => idArr.push(item.id + "-" + item.name));
-            this.gameDataSource = idArr;
+            if (resp.data.code == 200) {
+              this.gameDataSource = resp.data.data;
+              let idArr = [];
+              this.gameDataSource.filter(item => idArr.push(item.id + "-" + item.name));
+              this.gameDataSource = idArr;
+            } else {
+              this.$message.warning(resp.data.message);
+            }
           }).catch(err => util.errMessage(err));
     },
     //校验选择的gameId是否是返回的gameId,(主要是防止手动输入)
@@ -208,8 +216,7 @@ export default {
               } else {
                 this.$message.warning(resp.data.message);
               }
-            })
-            .catch(err => this.$message.error(util.errMessage(err)));
+            }).catch(err => this.$message.error(util.errMessage(err)));
       } else {
         this.$message.warning("请从下拉框中选择游戏,不要手动输入");
       }
@@ -228,8 +235,7 @@ export default {
             } else {
               this.$message.success(resp.data.message);
             }
-          })
-          .catch(err => util.errMessage(err))
+          }).catch(err => util.errMessage(err))
           .finally(() => this.drwerOps.visible = false);
     },
     //删除版块
@@ -242,8 +248,7 @@ export default {
             }
             this.$message.success(resp.data.message);
             this.getBlockList();
-          })
-          .catch(err => this.$message.error(util.errMessage(err)))
+          }).catch(err => this.$message.error(util.errMessage(err)))
     }
   },
   mounted() {

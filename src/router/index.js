@@ -35,12 +35,6 @@ const routes = [
                 component: () => import("@/views/admin/index/main/user/MyPersonalCenter")
             },
             {
-                //角色列表
-                path: "roleList",
-                name: "MyAdminRoleList",
-                component: () => import("@/views/admin/index/main/user/MyRoleList")
-            },
-            {
                 //菜单列表
                 path: "menuList",
                 name: "MyAdminMenuList",

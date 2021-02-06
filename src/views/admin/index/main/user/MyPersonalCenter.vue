@@ -80,8 +80,13 @@ export default {
     //获取用户信息
     getUserInfo() {
       this.$http.get(Api.userInfo, {params: {id: util.getLoginUserId()}})
-          .then(resp => this.dataSource = resp.data.data)
-          .catch(err => util.errMessage(err));
+          .then(resp => {
+            if (resp.data.code == 200) {
+              this.dataSource = resp.data.data;
+            } else {
+              this.$message.warning(resp.data.message);
+            }
+          }).catch(err => util.errMessage(err));
     },
     //图片上传回调
     afterUpload({fileList}) {
