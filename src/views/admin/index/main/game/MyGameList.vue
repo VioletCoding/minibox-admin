@@ -6,40 +6,29 @@
       <div>
         <a-space>
           <span>游戏ID:</span>
-          <a-input style="width: 300px"
-                   v-model="searchOps.id"/>
+          <a-input style="width: 300px" v-model="searchOps.id"/>
           <span>游戏名称:</span>
-          <a-input style="width: 300px"
-                   v-model="searchOps.name"/>
-          <a-button type="primary"
-                    @click="searchGame">搜索
+          <a-input style="width: 300px" v-model="searchOps.name"/>
+          <a-button type="primary" @click="searchGame">搜索
           </a-button>
-          <a-button type="primary"
-                    @click="addGameOps.visiale=true">添加
+          <a-button type="primary" @click="addGameOps.visiale=true">添加
           </a-button>
         </a-space>
       </div>
       <!--搜索区end-->
       <!--table-->
       <div style="margin-top: 20px">
-        <a-table :columns="columns"
-                 :data-source="dataSource"
-                 rowKey="id">
+        <a-table :columns="columns" :data-source="dataSource" rowKey="id">
           <template #expandedRowRender="record">
             <p style="text-align: center;font-size: 20px">{{ record.description }}</p>
-            <img :src="record.photoLink"
-                 alt="图片加载失败"
-                 style="width:100%;height:500px;object-fit: contain"/>
+            <img :src="record.photoLink" alt="图片加载失败" style="width:100%;height:500px;object-fit: contain"/>
           </template>
 
           <template #action="text,record,index">
             <span>
-                <a-button type="primary"
-                          @click="edit(record)">修改</a-button>
-              <a-popconfirm title="你确定要删除这个游戏吗？"
-                            @confirm="delGame(record.id)">
-                <a-button type="danger"
-                          style="margin-left: 20px;">删除</a-button>
+                <a-button type="primary" @click="edit(record)">修改</a-button>
+              <a-popconfirm title="你确定要删除这个游戏吗？" @confirm="delGame(record.id)">
+                <a-button type="danger" style="margin-left: 20px;">删除</a-button>
                 </a-popconfirm>
             </span>
           </template>
@@ -48,13 +37,9 @@
       <!--table end-->
       <!--Drawer 修改游戏 抽屉-->
       <div>
-        <a-drawer title="修改游戏"
-                  :width="720"
-                  :visible="drawerOps.visible"
-                  @close="()=>this.drawerOps.visible=false"
-                  :destroyOnClose="true">
-          <a-form-model :label-col="{span:4}"
-                        :wrapper-col="{span:14}">
+        <a-drawer title="修改游戏" :width="720" :visible="drawerOps.visible"
+                  @close="()=>this.drawerOps.visible=false" :destroyOnClose="true">
+          <a-form-model :label-col="{span:4}" :wrapper-col="{span:14}">
             <a-form-model-item label="游戏名称">
               <a-input v-model="drawerOps.tempData.name"/>
             </a-form-model-item>
@@ -77,130 +62,76 @@
               <a-input v-model="drawerOps.tempData.description"/>
             </a-form-model-item>
             <a-form-model-item :wrapper-col="{span:14,offset:4}">
-              <a-button type="primary"
-                        @click="onDraweOk">确定
+              <a-button type="primary" @click="onDraweOk">确定
               </a-button>
-              <a-button type="danger"
-                        style="margin-left: 50px;">取消
+              <a-button type="danger" style="margin-left: 50px;">取消
               </a-button>
             </a-form-model-item>
-
             <a-form-model-item label="游戏封面图">
               <div class="clearfix">
-                <a-upload
-                    :action="drawerOps.uploadOps.action"
-                    list-type="picture-card"
-                    :file-list="drawerOps.uploadOps.fileList"
-                    name="multipartFile"
-                    :headers="drawerOps.uploadOps.headers"
-                    @preview="preview"
-                    @change="handleChange">
-
+                <a-upload :action="action" list-type="picture-card"
+                    :file-list="drawerOps.uploadOps.fileList" name="multipartFile"
+                    :headers="headers" @preview="preview" @change="handleChange">
                   <div v-if="drawerOps.uploadOps.fileList.length < 1">
                     <a-icon type="plus"/>
                     <div class="ant-upload-text">Upload</div>
                   </div>
-
                 </a-upload>
-                <a-modal :visible="drawerOps.uploadOps.previewVisible"
-                         :footer="null"
-                         @cancel="handleCancel">
-                  <img alt="example"
-                       style="width: 100%"
-                       :src="drawerOps.uploadOps.previewImage"/>
+                <a-modal :visible="drawerOps.uploadOps.previewVisible" :footer="null" @cancel="handleCancel">
+                  <img alt="example" style="width: 100%" :src="drawerOps.uploadOps.previewImage"/>
                 </a-modal>
               </div>
             </a-form-model-item>
-
           </a-form-model>
         </a-drawer>
       </div>
       <!--Drawer 修改游戏  抽屉 end-->
       <!--Drawer 新增游戏 抽屉-->
       <div>
-        <a-drawer title="新增游戏"
-                  :width="720"
-                  :visible="addGameOps.visiale"
-                  :body-style="{ paddingBottom: '80px' }"
-                  @close="addGameOps.visiale=false"
-                  :destroy-on-close="true">
-
-          <a-form-model :label-col="{span:4}"
-                        :wrapper-col="{span:14}">
-
+        <a-drawer title="新增游戏" :width="720" :visible="addGameOps.visiale" :body-style="{ paddingBottom: '80px' }"
+                  @close="addGameOps.visiale=false" :destroy-on-close="true">
+          <a-form-model :label-col="{span:4}" :wrapper-col="{span:14}">
             <a-form-model-item label="游戏名称">
-              <a-input v-model="addGameOps.input.name"
-                       :maxLength="40"/>
+              <a-input v-model="addGameOps.input.name" :maxLength="40"/>
             </a-form-model-item>
-
             <a-form-model-item label="游戏现价">
-              <a-input-number :min="0.00"
-                              :step="0.01"
-                              v-model="addGameOps.input.price"/>
+              <a-input-number :min="0.00" :step="0.01" v-model="addGameOps.input.price"/>
             </a-form-model-item>
-
             <a-form-model-item label="游戏原价">
-              <a-input-number :min="0.00"
-                              :step="0.01"
-                              v-model="addGameOps.input.originPrice"/>
+              <a-input-number :min="0.00" :step="0.01" v-model="addGameOps.input.originPrice"/>
             </a-form-model-item>
-
             <a-form-model-item label="发布时间">
               <a-date-picker v-model="addGameOps.input.releaseTime"/>
             </a-form-model-item>
-
             <a-form-model-item label="开发商">
-              <a-input v-model="addGameOps.input.developer"
-                       :maxLength="255"/>
+              <a-input v-model="addGameOps.input.developer" :maxLength="255"/>
             </a-form-model-item>
-
             <a-form-model-item label="发行商">
-              <a-input v-model="addGameOps.input.publisher"
-                       :maxLength="255"/>
+              <a-input v-model="addGameOps.input.publisher" :maxLength="255"/>
             </a-form-model-item>
-
             <a-form-model-item label="游戏描述">
-              <a-textarea v-model="addGameOps.input.description"
-                          :auto-size="true"
-                          :allowClear="true"
-                          :maxLength="4000"/>
+              <a-textarea v-model="addGameOps.input.description" :auto-size="true" :allowClear="true" :maxLength="4000"/>
             </a-form-model-item>
-
             <a-form-model-item label="游戏封面图">
               <div class="clearfix">
-                <a-upload
-                    :action="drawerOps.uploadOps.action"
-                    list-type="picture-card"
-                    :file-list="addGameOps.uploadOps.fileList"
-                    name="multipartFile"
-                    :headers="drawerOps.uploadOps.headers"
-                    @preview="addGamehandlePreview"
-                    @change="addGamehandleChange">
-
+                <a-upload :action="action" list-type="picture-card" :file-list="addGameOps.uploadOps.fileList"
+                    name="multipartFile" :headers="headers" @preview="addGamehandlePreview" @change="addGamehandleChange">
                   <div v-if="addGameOps.uploadOps.fileList.length < 1">
                     <a-icon type="plus"/>
                     <div>Upload</div>
                   </div>
-
                 </a-upload>
-                <a-modal :visible="addGameOps.uploadOps.previewVisible"
-                         :footer="null"
+                <a-modal :visible="addGameOps.uploadOps.previewVisible" :footer="null"
                          @cancel="addGameOps.uploadOps.previewVisible = false">
-                  <img alt="example"
-                       style="width: 100%"
-                       :src="addGameOps.uploadOps.previewImage"/>
+                  <img alt="example" style="width: 100%" :src="addGameOps.uploadOps.previewImage"/>
                 </a-modal>
               </div>
             </a-form-model-item>
-
             <a-form-model-item :wrapper-col="{span:14,offset:4}">
-              <a-button type="primary"
-                        @click="addGameOnDraweOk">确定
+              <a-button type="primary" @click="addGameOnDraweOk">确定
               </a-button>
             </a-form-model-item>
-
           </a-form-model>
-
         </a-drawer>
       </div>
       <!--Drawer 新增游戏 抽屉end-->
@@ -295,6 +226,10 @@ export default {
       columns,
       //table 数据源
       dataSource: [],
+      //上传地址
+      action: util.ACTION,
+      //上传的请求头
+      headers: util.HEADERS,
       //搜索可用条件
       searchOps: {
         id: undefined,
@@ -328,11 +263,7 @@ export default {
         uploadOps: {
           previewImage: "",
           previewVisible: false,
-          action: "http://192.168.0.105:20001/" + Api.upload,
           fileList: [],
-          headers: {
-            accessToken: util.getLoginUserToken()
-          }
         },
       },
       //数据标识

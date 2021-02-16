@@ -3,43 +3,48 @@
   <div>
     <div v-if="!loading">
       <div style="margin-bottom: 20px">
-        <a-button type="primary"
-                  @click="modalOps.visible=true">添加版块
+        <a-button type="primary" @click="modalOps.visible=true">添加版块
         </a-button>
-        <a-modal title="添加新版块"
-                 :visible="modalOps.visible"
-                 @cancel="modalOps.visible=false"
-                 :confirmLoading="modalOps.loading"
-                 @ok="addBlock">
-          <a-form-model :label-col="{span:5}"
-                        :wrapper-col="{span:16}">
+        <a-modal title="添加新版块" :visible="modalOps.visible" @cancel="modalOps.visible=false"
+                 :confirmLoading="modalOps.loading" @ok="addBlock">
+          <a-form-model :label-col="{span:5}" :wrapper-col="{span:16}">
             <a-form-model-item label="版块名称">
-              <a-input v-model="modalOps.data.name"
-                       placeholder="请输入版块名称"/>
+              <a-input v-model="modalOps.data.name" placeholder="请输入版块名称"/>
             </a-form-model-item>
             <a-form-model-item label="关联游戏">
-              <a-auto-complete style="width: 250px"
-                               @blur="onBlur"
-                               backfill
-                               :data-source="gameDataSource"
-                               v-model="modalOps.data.gameId"
-                               placeholder="点击此处选择"/>
+              <a-auto-complete style="width: 250px" @blur="onBlur"
+                               backfill :data-source="gameDataSource"
+                               v-model="modalOps.data.gameId" placeholder="点击此处选择"/>
+            </a-form-model-item>
+            <a-form-model-item label="版块封面图">
+              <div class="clearfix">
+                <a-upload :action="action" list-type="picture-card"
+                          :file-list="modalOps.fileList" name="multipartFile"
+                          :headers="headers" @preview="preview(modalOps.data.photoLink)"
+                          @change="handleChange">
+                  <div v-if="modalOps.fileList.length < 1">
+                    <a-icon type="plus"/>
+                    <div class="ant-upload-text">Upload</div>
+                  </div>
+                </a-upload>
+              </div>
             </a-form-model-item>
           </a-form-model>
         </a-modal>
       </div>
+      <a-table :columns="columns" :data-source="dataSource" row-key="id">
 
-      <a-table :columns="columns"
-               :data-source="dataSource"
-               row-key="id">
+        <template #photoLink="record">
+          <a @click="preview(record)">点击查看</a>
+        </template>
+
         <template #action="record">
           <a-space>
             <!--修改和删除-->
             <span>
             <a-space>
               <a @click="beforUpdate(record)">修改</a>
-              <a-popconfirm title="确定要删除这个版块吗?"
-                            @confirm="delBlock(record.id)">
+              <a-popconfirm title="确定要删除这个版块吗?" @confirm="delBlock(record.id)">
                 <a>删除</a>
               </a-popconfirm>
             </a-space>
@@ -50,33 +55,44 @@
       </a-table>
 
       <div>
-        <a-drawer title="更改版块信息"
-                  placement="right"
-                  width="540px"
-                  :visible="drwerOps.visible"
-                  @close="drwerOps.visible=false"
-                  :closable="false">
-          <a-form-model :label-col="{span:5}"
-                        :wrapper-col="{span:16}">
+        <a-modal :visible="modalOps.previewVisible" :footer="null"
+                 @cancel="modalOps.previewVisible=false">
+          <img alt="加载失败" style="width: 100%" :src="modalOps.previewImage"/>
+        </a-modal>
+      </div>
+
+
+      <div>
+        <a-drawer title="更改版块信息" placement="right" width="540px"
+                  :visible="drwerOps.visible" @close="drwerOps.visible=false" :closable="false">
+          <a-form-model :label-col="{span:5}" :wrapper-col="{span:16}">
             <a-form-model-item label="版块名称">
-              <a-input v-model="drwerOps.recordData.name"
-                       placeholder="请输入版块名称"/>
+              <a-input v-model="drwerOps.recordData.name" placeholder="请输入版块名称"/>
             </a-form-model-item>
             <a-form-model-item label="关联游戏">
               <a-input v-model="drwerOps.recordData.gameId"/>
             </a-form-model-item>
+            <a-form-model-item label="版块封面图">
+              <div class="clearfix">
+                <a-upload :action="action" list-type="picture-card"
+                          :file-list="modalOps.updateList" name="multipartFile"
+                          :headers="headers" @preview="preview(drwerOps.recordData.photoLink)"
+                          @change="updateChange">
+                  <div v-if="modalOps.updateList.length < 1">
+                    <a-icon type="plus"/>
+                    <div class="ant-upload-text">Upload</div>
+                  </div>
+                </a-upload>
+              </div>
+            </a-form-model-item>
             <a-form-model-item label="操作">
-              <a-button type="primary"
-                        @click="updateBlock">确定
+              <a-button type="primary" @click="updateBlock">确定
               </a-button>
             </a-form-model-item>
           </a-form-model>
-
         </a-drawer>
       </div>
-
     </div>
-
     <div v-else>
       <MyLoading/>
     </div>
@@ -100,6 +116,11 @@ const columns = [
   {
     dataIndex: "gameId",
     title: "关联的游戏ID"
+  },
+  {
+    dataIndex: "photoLink",
+    title: "版块图片",
+    scopedSlots: {customRender: 'photoLink'}
   },
   {
     dataIndex: "state",
@@ -130,10 +151,15 @@ export default {
       columns,
       //table 数据源
       dataSource: [],
+      action: util.ACTION,
+      headers: util.HEADERS,
       //自动完成的数据源
       gameDataSource: [],
       //modal可选属性
       modalOps: {
+        fileList: [],
+        updateList: [],
+        previewVisible: false,
         data: {
           name: "",
           gameId: undefined,
@@ -159,12 +185,44 @@ export default {
     }
   },
   methods: {
+    //上传的文件列表发生改变时
+    handleChange({fileList}) {
+      this.modalOps.fileList = fileList;
+      if (fileList[0].status == "done") {
+        if (fileList[0].response.code == 200) {
+          this.modalOps.data.photoLink = fileList[0].response.data.images[0];
+        } else {
+          this.$notification.warning({message: fileList[0].response.message});
+        }
+      }
+    },
+    updateChange({fileList}) {
+      this.modalOps.updateList = fileList;
+      if (fileList[0].status == "done") {
+        if (fileList[0].response.code == 200) {
+          this.drwerOps.recordData.photoLink = fileList[0].response.data.images[0];
+          this.updateBlock();
+        } else {
+          this.$notification.warning({message: fileList[0].response.message});
+        }
+      }
+    },
+    //预览
+    preview(url) {
+      this.modalOps.previewImage = url;
+      this.modalOps.previewVisible = true;
+    },
+    //预览图关闭
+    handleCancel() {
+      this.modalOps.previewVisible = false;
+    },
     //获取版块信息
     getBlockList() {
       this.$http.post(Api.blockList)
           .then(resp => {
             if (resp.data.code == 200) {
               this.dataSource = resp.data.data;
+              console.log(this.dataSource);
             } else {
               this.$message.warning(resp.data.message);
             }
@@ -257,7 +315,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-
-</style>

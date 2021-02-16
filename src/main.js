@@ -22,19 +22,17 @@ Vue.use(ECharts);
 import NProgress from "nprogress";
 import "nprogress/nprogress.css";
 
-NProgress.configure({showSpinner: false, minimum: 0.2})
+NProgress.configure({showSpinner: false, minimum: 0.2});
 /**************************Vue Config**************************/
 Vue.config.productionTip = false;
 let infiniteScroll = require("vue-infinite-scroll");
 Vue.use(infiniteScroll);
-new Vue({
-    router,
-    render: h => h(App)
-}).$mount('#app');
+new Vue({router, render: h => h(App)}).$mount('#app');
 
 //请求的地址
 axios.defaults.baseURL = "http://192.168.0.105:20001/";
-axios.defaults.timeout = 5000;
+//axios.defaults.baseURL = "http://violetevergardenback.cn1.utools.club";
+axios.defaults.timeout = 30000;
 //请求拦截器
 axios.interceptors.request.use(
     config => {
@@ -64,9 +62,9 @@ axios.interceptors.response.use(
 
 //路由前置守卫
 router.beforeEach((to, from, next) => {
-    if (to.name != "MyAdminLogin" && !util.isLoginUserTokenExist())
+    if (to.name != "MyAdminLogin" && !util.isLoginUserTokenExist()) {
         next({name: "MyAdminLogin"})
-    else {
+    } else {
         NProgress.start();
         next();
     }

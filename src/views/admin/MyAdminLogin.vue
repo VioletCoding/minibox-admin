@@ -1,4 +1,3 @@
-<!--管理员登陆页，因为管理员的是PC端的，用移动端的组件展示效果不太好-->
 <template>
   <div class="box">
     <div class="container">
@@ -9,83 +8,50 @@
       </div>
       <!--Tabs标签切换-->
       <div class="tabs">
-        <a-tabs default-active-key="1"
-                @change="callback">
-          <a-tab-pane key="1"
-                      tab="账号密码登陆"/>
-          <a-tab-pane key="2"
-                      tab="验证码登陆"
-                      force-render/>
+        <a-tabs default-active-key="1" @change="callback">
+          <a-tab-pane key="1" tab="账号密码登陆"/>
+          <a-tab-pane key="2" tab="验证码登陆" force-render/>
         </a-tabs>
       </div>
       <!--Tabs标签切换end-->
-
       <!--不使用tabs组件的默认样式-->
       <div class="login">
         <!--表单输入校验区-->
-        <a-form-model :model="authForm"
-                      :rules="authFormRules"
-                      ref="login">
-          <a-form-model-item prop="username"
-                             has-feedback>
-            <a-input v-model="authForm.username"
-                     placeholder="请输入用户名"
-                     :allowClear="true">
-              <a-icon slot="prefix"
-                      type="user"/>
+        <a-form-model :model="authForm" :rules="authFormRules" ref="login">
+          <a-form-model-item prop="username" has-feedback>
+            <a-input v-model="authForm.username" placeholder="请输入用户名" :allowClear="true">
+              <a-icon slot="prefix" type="user"/>
             </a-input>
           </a-form-model-item>
-
           <!--根据激活的tab显示不同的input框和button tabActiveKey==1 账号密码输入 tabActiveKey==2 验证码输入-->
-          <a-form-model-item v-if="tabActiveKey == 1"
-                             prop="password"
-                             has-feedback>
-            <a-input-password v-model="authForm.password"
-                              placeholder="请输入密码"
-                              :allowClear="true">
-              <a-icon slot="prefix"
-                      type="safety-certificate"/>
+          <a-form-model-item v-if="tabActiveKey == 1" prop="password" has-feedback>
+            <a-input-password v-model="authForm.password" placeholder="请输入密码" :allowClear="true">
+              <a-icon slot="prefix" type="safety-certificate"/>
             </a-input-password>
           </a-form-model-item>
-
-          <div v-if="tabActiveKey == 2"
-               class="authCodeInput">
+          <div v-if="tabActiveKey == 2" class="authCodeInput">
             <div class="inline-block">
-              <a-form-model-item prop="authCode"
-                                 has-feedback>
-                <a-input v-model="authForm.authCode"
-                         placeholder="请输入验证码"
-                         :allowClear="true"
-                         :maxLength="6">
-                  <a-icon slot="prefix"
-                          type="safety-certificate"/>
+              <a-form-model-item prop="authCode" has-feedback>
+                <a-input v-model="authForm.authCode" placeholder="请输入验证码" :allowClear="true" :maxLength="6">
+                  <a-icon slot="prefix" type="safety-certificate"/>
                 </a-input>
               </a-form-model-item>
-
             </div>
-
             <div class="inline-block btn">
-              <a-button type="default"
-                        @click="getAuthCode"
-                        :loading="getAuthCodeButtonLoadingFlag"
+              <a-button type="default" @click="getAuthCode" :loading="getAuthCodeButtonLoadingFlag"
                         :disabled="getAuthCodeButtonDisableFlag">
                 获取验证码
               </a-button>
             </div>
-
           </div>
         </a-form-model>
       </div>
       <!--表单输入校验区end-->
-
       <!--公共区域-->
       <div class="public">
         <a-checkbox @change="autoLogin">自动登录</a-checkbox>
         <br/><br/>
-        <a-button type="primary"
-                  block
-                  @click="confirm">确定
-        </a-button>
+        <a-button type="primary" block @click="confirm">确定</a-button>
       </div>
       <!--公共区域end-->
       <div class="footer">
@@ -222,6 +188,8 @@ export default {
                 } else {
                   this.$message.warning("你不是管理员");
                 }
+              } else {
+                this.$message.warning(resp.data.message);
               }
             }).catch(err => util.errMessage(err));
           } else {

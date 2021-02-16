@@ -5,9 +5,7 @@
       <p>Mini Box Pro</p>
       <!--折叠菜单按钮-->
       <div>
-        <a-button type="primary"
-                  @click="collapsed = !collapsed"
-                  size="large">
+        <a-button type="primary" @click="collapsed = !collapsed" size="large">
           <a-icon :type="collapsed ? 'menu-unfold' : 'menu-fold'"/>
         </a-button>
       </div>
@@ -15,12 +13,8 @@
       <p>欢迎进入 Mini Box 后台管理页面</p>
       <p>{{ userInfo.nickname }}</p>
       <div>
-        <a-dropdown overlayClassName="user-info"
-                    placement="bottomCenter">
-          <a-avatar :size="30"
-                    :src="userInfo.photoLink"
-                    alt="头像加载失败"
-                    style="margin-right: 50px">
+        <a-dropdown overlayClassName="user-info" placement="bottomCenter">
+          <a-avatar :size="30" :src="userInfo.photoLink" alt="头像加载失败" style="margin-right: 50px">
           </a-avatar>
           <a-menu slot="overlay">
             <a-menu-item>
@@ -31,27 +25,19 @@
             </a-menu-item>
           </a-menu>
         </a-dropdown>
-        <a-button type="danger"
-                  icon="logout"
-                  @click="logoutConfirm">退出登录
+        <a-button type="danger" icon="logout" @click="logoutConfirm">退出登录
         </a-button>
       </div>
-
     </div>
     <!--顶部导航end-->
-
     <div class="box">
       <!--侧边导航菜单-->
       <div class="m-menu">
         <!--菜单组-->
-        <a-menu mode="inline"
-                :defaultSelectedKeys="[this.$route.path]"
-                :selectedKeys="[this.$route.path]"
-                :inline-collapsed="collapsed"
-                @select="jump">
+        <a-menu mode="inline" :defaultSelectedKeys="[this.$route.path]" :selectedKeys="[this.$route.path]"
+                :inline-collapsed="collapsed" @select="jump">
           <template v-for="item in menuList">
-            <a-menu-item v-if="item.menuUrl"
-                         :key="item.menuUrl">
+            <a-menu-item v-if="item.menuUrl" :key="item.menuUrl">
               <a-icon :type="item.menuIcon"/>
               <span>{{ item.menuName }}</span>
             </a-menu-item>
@@ -60,7 +46,6 @@
         <!--菜单组end-->
       </div>
       <!--侧边导航菜单end-->
-
       <!--右边的内容区域-->
       <div class="m-right">
         <!--内容展示区-->
@@ -72,9 +57,7 @@
         <!--内容展示区end-->
       </div>
       <!--右边的内容区域end-->
-
     </div>
-
   </div>
 </template>
 

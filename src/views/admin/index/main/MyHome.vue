@@ -1,23 +1,14 @@
 <!--首页显示的内容-->
 <template>
   <div class="container">
-
     <!--第一栏-->
     <div class="flex">
-
-      <a-card class="card-style"
-              v-for="(item,index) in cardContent"
-              :key="index"
-              :title="item.title"
-              :activeTabKey="index + '' "
-              :hoverable="true">
-        <a-statistic :value="item.number"
-                     :suffix="item.suffix"/>
+      <a-card class="card-style" v-for="(item,index) in cardContent" :key="index"
+              :title="item.title" :activeTabKey="index + '' " :hoverable="true">
+        <a-statistic :value="item.number" :suffix="item.suffix"/>
       </a-card>
-
     </div>
     <!--第一栏 end-->
-
     <!--第二栏 -->
     <div class="flex">
       <!--echarts图表-->
@@ -25,10 +16,8 @@
       <!--排行榜-->
       <div class="leaderboard">
         <div style="font-size: 18px;font-weight: bold">游戏销量排行榜</div>
-        <a-list item-layout="vertical"
-                v-for="(item,index) in gameSalesRankings"
-                v-if="index < 7"
-                :key="index + 'leaderboard' ">
+        <a-list item-layout="vertical" v-for="(item,index) in gameSalesRankings"
+                v-if="index < 7" :key="index + 'leaderboard' ">
           <a-list-item>
             <a-badge :count="index + 1"/>
             <span style="margin-left: 30px">{{ item.name }}</span>
@@ -39,14 +28,11 @@
       <!--排行榜end-->
     </div>
     <!--第二栏end-->
-
     <!--第三栏-->
     <div class="m-bottom" id="bottom"></div>
     <!--第三栏end-->
-
   </div>
 </template>
-
 <script>
 import Api from "@/api/api";
 import MyLoading from "@/component/MyLoading";

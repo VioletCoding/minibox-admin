@@ -6,118 +6,81 @@
       <div>
         <a-space>
           <span>帖子ID：</span>
-          <a-input style="width: 300px"
-                   v-model="searchOps.id"/>
+          <a-input style="width: 300px" v-model="searchOps.id"/>
           <span>帖子标题：</span>
-          <a-input style="width: 300px"
-                   v-model="searchOps.title"/>
+          <a-input style="width: 300px" v-model="searchOps.title"/>
           <span>发帖人ID：</span>
-          <a-input style="width: 300px"
-                   v-model="searchOps.uid"/>
-          <a-button type="primary"
-                    @click="getPostList">搜索
-          </a-button>
-          <a-button type="primary"
-                    @click="resetField">重置
-          </a-button>
+          <a-input style="width: 300px" v-model="searchOps.authorId"/>
+          <a-button type="primary" @click="getPostList">搜索</a-button>
+          <a-button type="primary" @click="resetField">重置</a-button>
         </a-space>
       </div>
       <!--搜索区end-->
       <div style="margin-top: 20px">
-        <a-table :columns="columns"
-                 :data-source="dataSource"
-                 rowKey="id">
+        <a-table :columns="columns" :data-source="dataSource" rowKey="id">
           <template #action="record">
             <a-space>
               <a @click="showDetail(record)">详情</a>
-              <a-popconfirm title="确定删除这个帖子吗?"
-                            @confirm="del(record.id)">
+              <a-popconfirm title="确定删除这个帖子吗?" @confirm="del(record.id)">
                 <a>删除</a>
               </a-popconfirm>
             </a-space>
           </template>
         </a-table>
-        <a-drawer width="1040"
-                  placement="right"
-                  :closable="drawerOps.closable"
-                  :visible="drawerOps.visible"
-                  :destroy-on-close="true"
-                  @close="drawerOps.visible = false;drawerOps.editing=false">
+        <a-drawer width="1040" placement="right" :closable="drawerOps.closable" :visible="drawerOps.visible"
+                  :destroy-on-close="true" @close="drawerOps.visible = false;drawerOps.editing=false">
           <div>
-            <a-descriptions title="帖子信息"
-                            bordered>
-              <a-descriptions-item label="帖子标题"
-                                   :span="3">
+            <a-descriptions title="帖子信息" bordered>
+              <a-descriptions-item label="帖子标题" :span="3">
                 <span v-if="!drawerOps.editing">{{ drawerOps.tempData.title }}</span>
                 <span v-else><a-input v-model="drawerOps.tempData.title"/></span>
               </a-descriptions-item>
-              <a-descriptions-item label="帖子内容"
-                                   :span="3">{{ drawerOps.tempData.content }}
+              <a-descriptions-item label="帖子内容" :span="3">{{ drawerOps.tempData.content }}
               </a-descriptions-item>
-              <a-descriptions-item label="帖子ID"
-                                   :span="1">{{ drawerOps.tempData.id }}
+              <a-descriptions-item label="帖子ID" :span="1">{{ drawerOps.tempData.id }}
               </a-descriptions-item>
-              <a-descriptions-item label="创建时间"
-                                   :span="1">{{ drawerOps.tempData.createDate }}
+              <a-descriptions-item label="创建时间" :span="1">{{ drawerOps.tempData.createDate }}
               </a-descriptions-item>
-              <a-descriptions-item label="帖子封面图"
-                                   :span="1">
+              <a-descriptions-item label="帖子封面图" :span="1">
                 <a @click="preview(drawerOps.tempData.photoLink)">点击查看</a>
               </a-descriptions-item>
             </a-descriptions>
           </div>
           <div style="margin-top: 20px">
-            <a-descriptions title="发布者信息"
-                            bordered>
-              <a-descriptions-item label="ID"
-                                   :span="1">{{ drawerOps.tempData.authorId }}
+            <a-descriptions title="发布者信息" bordered>
+              <a-descriptions-item label="ID" :span="1">{{ drawerOps.tempData.authorId }}
               </a-descriptions-item>
             </a-descriptions>
           </div>
           <div style="margin-top: 20px">
-            <a-descriptions title="版块信息"
-                            bordered>
-              <a-descriptions-item label="ID"
-                                   :span="1">{{ drawerOps.tempData.blockId }}
+            <a-descriptions title="版块信息" bordered>
+              <a-descriptions-item label="ID" :span="1">{{ drawerOps.tempData.blockId }}
               </a-descriptions-item>
             </a-descriptions>
           </div>
-
           <div style="margin-top: 20px;">
-
             <div v-if="!drawerOps.editing">
-              <a-button type="primary"
-                        @click="drawerOps.editing=true">修改
-              </a-button>
+              <a-button type="primary" @click="drawerOps.editing=true">修改</a-button>
             </div>
             <div v-else>
               <a-space>
-                <a-button type="primary"
-                          @click="save">保存
-                </a-button>
-                <a-popconfirm title="确定要取消吗?"
-                              @confirm="drawerOps.editing=false">
+                <a-button type="primary" @click="save">保存</a-button>
+                <a-popconfirm title="确定要取消吗?" @confirm="drawerOps.editing=false">
                   <a-button type="danger">取消</a-button>
                 </a-popconfirm>
               </a-space>
             </div>
           </div>
         </a-drawer>
-        <a-modal :visible="drawerOps.preview.previewVisible"
-                 :footer="null"
-                 destory-on-close
+        <a-modal :visible="drawerOps.preview.previewVisible" :footer="null" destory-on-close
                  @cancel="drawerOps.preview.previewVisible=false">
-          <img alt="图片加载失败啦..."
-               style="width: 100%"
-               :src="drawerOps.preview.previewImage"/>
+          <img alt="图片加载失败啦..." style="width: 100%" :src="drawerOps.preview.previewImage"/>
         </a-modal>
       </div>
     </div>
-
     <div v-else>
       <MyLoading/>
     </div>
-
   </div>
 </template>
 

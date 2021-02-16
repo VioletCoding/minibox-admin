@@ -71,6 +71,12 @@ function checkRegularExpression(regex, value) {
     return new RegExp(regex).test(value);
 }
 
+//const ACTION = "http://violetevergardenback.cn1.utools.club/publicApi/upload";
+const ACTION = "http://192.168.0.105:20001/publicApi/upload";
+const HEADERS = {
+    accessToken: getLoginUserToken()
+}
+
 export default {
     isLoginUserIdExist,
     getLoginUserId,
@@ -79,5 +85,6 @@ export default {
     removeAllAuthenticate,
     errMessage,
     isNullOrEmpty,
-    checkRegularExpression
+    checkRegularExpression,
+    ACTION,HEADERS
 }

@@ -6,52 +6,32 @@
       <div>
         <a-space>
           <span>菜单ID:</span>
-          <a-input type="text"
-                   style="width: 300px"
-                   v-model="searchOps.id"/>
+          <a-input type="text" style="width: 300px" v-model="searchOps.id"/>
           <span>菜单名称:</span>
-          <a-input type="text"
-                   style="width: 300px"
-                   v-model="searchOps.menuName"/>
-          <a-button type="primary"
-                    @click="getMenuList">查询
+          <a-input type="text" style="width: 300px" v-model="searchOps.menuName"/>
+          <a-button type="primary" @click="getMenuList">查询
           </a-button>
           <a-button @click="showAddMenuModal">添加</a-button>
         </a-space>
       </div>
       <!--搜索区end-->
-
       <!--table-->
       <div style="margin-top: 20px">
-        <a-table :columns="columns"
-                 :data-source="menuList"
-                 rowKey="id"
-                 :loading="tableOps.isLoading">
+        <a-table :columns="columns" :data-source="menuList" rowKey="id" :loading="tableOps.isLoading">
           <template #icon="record">
             <a-icon :type="record"/>
             <span style="margin-left: 10px;">{{ record }}</span>
           </template>
-
           <template #action="record">
-            <a-button type="primary"
-                      @click="showModal(record)">修改
+            <a-button type="primary" @click="showModal(record)">修改
             </a-button>
-
-            <a-modal :visible="tableOps.modalOps.visible"
-                     @cancel="closeModal"
-                     @ok="updateMenuInfo"
+            <a-modal :visible="tableOps.modalOps.visible" @cancel="closeModal" @ok="updateMenuInfo"
                      :confirm-loading="tableOps.modalOps.confirmLoading"
-                     :mask="false"
-                     :destroyOnClose="true"
-                     title="修改菜单信息">
-
-              <a-form-model :label-col="{span:4}"
-                            :wrapper-col="{span:14}">
+                     :mask="false" :destroyOnClose="true" title="修改菜单信息">
+              <a-form-model :label-col="{span:4}" :wrapper-col="{span:14}">
                 <a-form-model-item label="菜单ID">
-                  <a-input v-model="tableOps.modalOps.inputValue.id"
-                           :disabled="true"/>
+                  <a-input v-model="tableOps.modalOps.inputValue.id" :disabled="true"/>
                 </a-form-model-item>
-
                 <a-form-model-item label="菜单图标">
                   <a-input v-model="tableOps.modalOps.inputValue.menuIcon">
                     <a-icon v-if="tableOps.modalOps.inputValue.menuIcon != '' "
@@ -59,29 +39,18 @@
                             :type="tableOps.modalOps.inputValue.menuIcon"/>
                   </a-input>
                 </a-form-model-item>
-
                 <a-form-model-item label="菜单名称">
                   <a-input v-model="tableOps.modalOps.inputValue.menuName"/>
                 </a-form-model-item>
-
                 <a-form-model-item label="菜单路径">
                   <a-input v-model="tableOps.modalOps.inputValue.menuUrl"/>
                 </a-form-model-item>
-
               </a-form-model>
             </a-modal>
-
-            <a-modal :visible="addMenuModalOps.visible"
-                     @cancel="closeModal"
-                     @ok="addMenu"
+            <a-modal :visible="addMenuModalOps.visible" @cancel="closeModal" @ok="addMenu"
                      :confirm-loading="addMenuModalOps.confirmLoading"
-                     :mask="false"
-                     :destroyOnClose="true"
-                     title="添加菜单">
-
-              <a-form-model :label-col="{span:4}"
-                            :wrapper-col="{span:14}">
-
+                     :mask="false" :destroyOnClose="true" title="添加菜单">
+              <a-form-model :label-col="{span:4}" :wrapper-col="{span:14}">
                 <a-form-model-item label="菜单图标">
                   <a-input v-model="addMenuModalOps.inputValue.menuIcon">
                     <a-icon v-if="addMenuModalOps.inputValue.menuIcon != '' "
@@ -89,27 +58,19 @@
                             :type="addMenuModalOps.inputValue.menuIcon"/>
                   </a-input>
                 </a-form-model-item>
-
                 <a-form-model-item label="菜单名称">
                   <a-input v-model="addMenuModalOps.inputValue.menuName"/>
                 </a-form-model-item>
-
                 <a-form-model-item label="菜单路径">
                   <a-input v-model="addMenuModalOps.inputValue.menuUrl"/>
                 </a-form-model-item>
-
               </a-form-model>
             </a-modal>
-
-            <a-popconfirm title="确定要删除这个菜单吗？"
-                          @confirm="deleteMenu(record)">
-              <a-button type="danger"
-                        style="margin-left: 20px;">删除
+            <a-popconfirm title="确定要删除这个菜单吗？" @confirm="deleteMenu(record)">
+              <a-button type="danger" style="margin-left: 20px;">删除
               </a-button>
             </a-popconfirm>
           </template>
-
-
         </a-table>
       </div>
       <!--table end-->
@@ -124,7 +85,6 @@
 import Api from "@/api/api";
 import MyLoading from "@/component/MyLoading";
 import util from "@/api/util";
-//table columns
 const columns = [
   {
     dataIndex: "id",

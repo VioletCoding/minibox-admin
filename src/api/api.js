@@ -28,6 +28,8 @@ const userDelete = "userApi/delete";
 const userAddAdmin = "userApi/addAdmin";
 //删除用户管理员角色
 const deleteAdmin = "userApi/deleteAdmin";
+//更新密码
+const userPwdModify = "userApi/userPwdModify";
 //--------------------公用---------------------------
 //图片上传接口
 const upload = "publicApi/upload";
@@ -62,7 +64,7 @@ const gameDelete = "gameApi/delete";
 export default {
     auth, loginOrReg, passwordLogin, logout,
     menuList, menuAdd, menuModify, menuDelete,
-    userInfo, userModify, userList, userDelete, deleteAdmin, userAddAdmin,
+    userInfo, userModify, userList, userDelete, deleteAdmin, userAddAdmin,userPwdModify,
     upload, echarts,
     postList, postDel, postModify,
     blockList, blockAdd, blockModify, blockDelete,
