@@ -203,11 +203,11 @@ export default {
           if (v) {
             this.$http.post(Api.loginOrReg, {username: this.authForm.username, authCode: this.authForm.authCode})
                 .then(resp => {
-                  let result = resp.data;
-                  if (result.code == 200) {
-                    if (result.adminFlag) {
-                      let userInfo = result.data.userInfo;
-                      this.autoLoginService(userInfo.nickname, userInfo.photoLink, result.data.token, userInfo.id);
+                  console.log(resp);
+                  if (resp.data.code == 200) {
+                    if (resp.data.data.adminFlag) {
+                      let userInfo = resp.data.data.userInfo;
+                      this.autoLoginService(userInfo.nickname, userInfo.photoLink, resp.data.data.token, userInfo.id);
                       let tip = this.loadTimeTip();
                       this.$notification.success({message: tip + " " + localStorage.getItem("nickname")});
                       this.$router.replace("/home");

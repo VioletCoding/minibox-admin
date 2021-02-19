@@ -57,6 +57,18 @@ const routes = [
                 path: "blockList",
                 name: "MyAdminBlockList",
                 component: () => import("@/views/admin/index/main/block/MyBlockList")
+            },
+            {
+                //标签管理
+                path: "tagList",
+                name: "MyTagList",
+                component: () => import("@/views/admin/index/main/tag/MyTagList")
+            },
+            {
+                //游戏图片管理
+                path: "photoList",
+                name: "MyPhotoList",
+                component: () => import("@/views/admin/index/main/game/MyPhotoList")
             }
         ]
     },

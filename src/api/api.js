@@ -60,13 +60,24 @@ const gameAdd = "gameApi/add";
 const gameModify = "gameApi/modify";
 //游戏删除
 const gameDelete = "gameApi/delete";
+//---------------------标签--------------------------
+const tagSave = "tagApi/save";
+const tagRemove = "tagApi/remove";
+const tagList = "tagApi/list";
+//---------------------游戏图片--------------------------
+const photoSave = "photoApi/save";
+const photoRemove = "photoApi/remove";
+const photoList = "photoApi/list";
+
 
 export default {
     auth, loginOrReg, passwordLogin, logout,
     menuList, menuAdd, menuModify, menuDelete,
-    userInfo, userModify, userList, userDelete, deleteAdmin, userAddAdmin,userPwdModify,
+    userInfo, userModify, userList, userDelete, deleteAdmin, userAddAdmin, userPwdModify,
     upload, echarts,
     postList, postDel, postModify,
     blockList, blockAdd, blockModify, blockDelete,
-    gameList, gameAdd, gameModify, gameDelete
+    gameList, gameAdd, gameModify, gameDelete,
+    tagSave, tagRemove, tagList,
+    photoSave, photoRemove, photoList
 }
