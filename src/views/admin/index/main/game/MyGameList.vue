@@ -70,8 +70,8 @@
             <a-form-model-item label="游戏封面图">
               <div class="clearfix">
                 <a-upload :action="action" list-type="picture-card"
-                    :file-list="drawerOps.uploadOps.fileList" name="multipartFile"
-                    :headers="headers" @preview="preview" @change="handleChange">
+                          :file-list="drawerOps.uploadOps.fileList" name="multipartFile"
+                          :headers="headers" @preview="preview" @change="handleChange">
                   <div v-if="drawerOps.uploadOps.fileList.length < 1">
                     <a-icon type="plus"/>
                     <div class="ant-upload-text">Upload</div>
@@ -110,12 +110,14 @@
               <a-input v-model="addGameOps.input.publisher" :maxLength="255"/>
             </a-form-model-item>
             <a-form-model-item label="游戏描述">
-              <a-textarea v-model="addGameOps.input.description" :auto-size="true" :allowClear="true" :maxLength="4000"/>
+              <a-textarea v-model="addGameOps.input.description" :auto-size="true" :allowClear="true"
+                          :maxLength="4000"/>
             </a-form-model-item>
             <a-form-model-item label="游戏封面图">
               <div class="clearfix">
                 <a-upload :action="action" list-type="picture-card" :file-list="addGameOps.uploadOps.fileList"
-                    name="multipartFile" :headers="headers" @preview="addGamehandlePreview" @change="addGamehandleChange">
+                          name="multipartFile" :headers="headers" @preview="addGamehandlePreview"
+                          @change="addGamehandleChange">
                   <div v-if="addGameOps.uploadOps.fileList.length < 1">
                     <a-icon type="plus"/>
                     <div>Upload</div>
@@ -203,6 +205,7 @@ const columns = [
   {
     key: "action",
     title: "操作",
+    width: "250px",
     scopedSlots: {customRender: "action"}
   }
 ];

@@ -7,7 +7,7 @@
           <a @click="preview(text)">点击查看</a>
         </template>
         <template #ops="text, record">
-          <a-popconfirm title="确定删除?">
+          <a-popconfirm title="确定删除?" @confirm="confirmDelete(record.id,record.gameId)">
             <a>删除</a>
           </a-popconfirm>
         </template>
@@ -56,6 +56,7 @@
 import MyLoading from "@/component/MyLoading";
 import util from "@/api/util";
 import api from "@/api/api";
+
 const columns = [
   {
     title: "id",
@@ -111,6 +112,19 @@ export default {
     }
   },
   methods: {
+    confirmDelete(id, gameId) {
+      if (!util.isNullOrEmpty(id) && !util.isNullOrEmpty(gameId)) {
+        this.$http.get(api.photoRemove, {params: {id: id, gameId: gameId}})
+            .then(resp => {
+              if (resp.data.code === 200) {
+                this.photoList = resp.data.data;
+                this.$message.success(resp.data.message);
+              } else {
+                this.$message.warning(resp.data.message);
+              }
+            }).catch(err => util.errMessage(err));
+      }
+    },
     loadPhotoList() {
       this.loading = true;
       this.$http.post(api.photoList)

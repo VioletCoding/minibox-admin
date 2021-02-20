@@ -56,7 +56,7 @@ function removeAllAuthenticate() {
 
 //错误信息
 function errMessage(err) {
-    return err.response.message == null ? "服务器开小差了" : err.response.message;
+    return err.response.message == null ? "请重试" : err.response.message;
 }
 
 //判空
@@ -69,8 +69,8 @@ function checkRegularExpression(regex, value) {
     return new RegExp(regex).test(value);
 }
 
-//const ACTION = "http://violetevergardenback.cn1.utools.club/publicApi/upload";
-const ACTION = "http://192.168.0.105:20001/publicApi/upload";
+const ACTION = "http://violetevergardenback.cn1.utools.club/publicApi/upload";
+//const ACTION = "http://192.168.0.105:20001/publicApi/upload";
 const HEADERS = {
     accessToken: getLoginUserToken()
 }
@@ -84,5 +84,5 @@ export default {
     errMessage,
     isNullOrEmpty,
     checkRegularExpression,
-    ACTION,HEADERS
+    ACTION, HEADERS
 }
