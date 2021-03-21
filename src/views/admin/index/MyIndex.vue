@@ -77,8 +77,8 @@ export default {
       menuList: [],
       //用户信息
       userInfo: {
-        nickname: localStorage.getItem("nickname"),
-        photoLink: localStorage.getItem("photoLink")
+        nickname: "",
+        photoLink: ""
       }
     }
   },
@@ -132,6 +132,20 @@ export default {
     }
   },
   mounted() {
+    let nickname = localStorage.getItem("nickname");
+    let photoLink = localStorage.getItem("photoLink");
+
+    let nickname_s = sessionStorage.getItem("nickname");
+    let photoLink_p = sessionStorage.getItem("photoLink");
+
+    if (nickname && photoLink) {
+      this.userInfo.nickname = nickname;
+      this.userInfo.photoLink = photoLink;
+    } else {
+      this.userInfo.nickname = nickname_s;
+      this.userInfo.photoLink = photoLink_p;
+    }
+
     this.getMenuList();
   }
 

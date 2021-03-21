@@ -142,6 +142,12 @@ export default {
         sessionStorage.setItem("userId", userId);
       }
     },
+    getNickname() {
+      let v = localStorage.getItem("nickname");
+      let v2 = sessionStorage.getItem("nickname");
+      if (!v) return v2;
+      else return v;
+    },
     //获取验证码按钮
     getAuthCode() {
       //单个参数验证，传入prop名，得到回调
@@ -183,7 +189,8 @@ export default {
                   let userInfo = result.data.userInfo;
                   this.autoLoginService(userInfo.nickname, userInfo.photoLink, result.data.token, userInfo.id);
                   let tip = this.loadTimeTip();
-                  this.$notification.success({message: tip + " " + localStorage.getItem("nickname")});
+                  let nickname = this.getNickname();
+                  this.$notification.success({message: tip + " " + nickname});
                   this.$router.replace("/home");
                 } else {
                   this.$message.warning("你不是管理员");
@@ -209,7 +216,8 @@ export default {
                       let userInfo = resp.data.data.userInfo;
                       this.autoLoginService(userInfo.nickname, userInfo.photoLink, resp.data.data.token, userInfo.id);
                       let tip = this.loadTimeTip();
-                      this.$notification.success({message: tip + " " + localStorage.getItem("nickname")});
+                      let nickname = this.getNickname();
+                      this.$notification.success({message: tip + " " + nickname});
                       this.$router.replace("/home");
                     } else {
                       this.$message.warning("你不是管理员");
