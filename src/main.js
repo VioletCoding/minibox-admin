@@ -30,7 +30,7 @@ Vue.use(infiniteScroll);
 new Vue({router, render: h => h(App)}).$mount('#app');
 
 //请求的地址
-axios.defaults.baseURL = "http://192.168.0.105:20001/";
+axios.defaults.baseURL = "http://127.0.0.1:20001/";
 //axios.defaults.baseURL = "http://violetevergardenback.cn1.utools.club";
 axios.defaults.timeout = 30000;
 //请求拦截器

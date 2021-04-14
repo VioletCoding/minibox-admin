@@ -145,8 +145,8 @@ export default {
     getNickname() {
       let v = localStorage.getItem("nickname");
       let v2 = sessionStorage.getItem("nickname");
-      if (!v) return v2;
-      else return v;
+      if (v) return v;
+      else return v2;
     },
     //获取验证码按钮
     getAuthCode() {
